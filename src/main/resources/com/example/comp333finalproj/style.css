@@ -1,0 +1,62 @@
+/* Table container */
+.table-view {
+    -fx-background-color: #e6f7ef;
+    -fx-border-color: #00a650;
+    -fx-border-width: 2px;
+    -fx-border-radius: 10px;
+    -fx-padding: 5;
+}
+
+/* Header background */
+.table-view .column-header-background {
+    -fx-background-color: #00a650;
+    -fx-border-radius: 10px 10px 0 0;
+}
+
+/* Header cells */
+.table-view .column-header,
+.table-view .filler {
+    -fx-background-color: transparent;
+}
+
+/* Header text */
+.table-view .column-header .label {
+    -fx-text-fill: white;
+    -fx-font-family: "Times New Roman";
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+/* Table rows */
+.table-row-cell {
+    -fx-background-color: #e6f7ef;
+    -fx-border-color: transparent;
+}
+
+/* Alternate rows */
+.table-row-cell:odd {
+    -fx-background-color: #d9f3e8;
+}
+
+/* Hover effect */
+.table-row-cell:hover {
+    -fx-background-color: #bff0d8;
+}
+
+/* Selected row */
+.table-row-cell:selected {
+    -fx-background-color: #009144;
+}
+
+/* Cell text */
+.table-cell {
+    -fx-font-family: "Times New Roman";
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #006b3c;
+}
+
+/* Selected cell text */
+.table-row-cell:selected .table-cell {
+    -fx-text-fill: white;
+}
