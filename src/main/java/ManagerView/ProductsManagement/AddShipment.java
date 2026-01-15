@@ -5,11 +5,14 @@ import Connection.DBUtil;
 import Connection.CategoryDAO;
 import Product.Product;
 import com.example.comp333finalproj.UIHelperC;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -34,7 +37,10 @@ public class AddShipment {
     private Button addShipmentButton, cancelButton;
 
     private Text productNameText, categoryNameText, priceText, quantityText;
-    private TextField productNameTextField, categoryNameTextField, priceTextField, quantityTextField;
+    private TextField productNameTextField, priceTextField, quantityTextField;
+    private ComboBox<String> categoryComboBox;
+
+    private ObservableList<String> categoryList = FXCollections.observableArrayList();
 
     public AddShipment(Runnable onSuccessRefresh) {
         this.onSuccessRefresh = onSuccessRefresh;
@@ -55,7 +61,12 @@ public class AddShipment {
         productNameTextField = UIHelperC.createStyledTextField("name");
 
         categoryNameText = UIHelperC.createInfoText("Category: ");
-        categoryNameTextField = UIHelperC.createStyledTextField("category");
+
+        categoryComboBox = new ComboBox<>();
+        categoryComboBox.setPromptText("Select Category");
+        categoryComboBox.setPrefWidth(250);
+        categoryComboBox.setEditable(true);
+        loadCategoriesIntoComboBox();
 
         priceText = UIHelperC.createInfoText("Price: ");
         priceTextField = UIHelperC.createStyledTextField("price");
@@ -67,7 +78,7 @@ public class AddShipment {
         grid.add(productNameTextField, 1, 0);
 
         grid.add(categoryNameText, 0, 1);
-        grid.add(categoryNameTextField, 1, 1);
+        grid.add(categoryComboBox, 1, 1);
 
         grid.add(priceText, 0, 2);
         grid.add(priceTextField, 1, 2);
@@ -96,16 +107,15 @@ public class AddShipment {
         cancelButton.setOnAction(e -> stage.close());
         addShipmentButton.setOnAction(e -> addShipmentAction());
 
-        productNameTextField.setOnAction(e -> categoryNameTextField.requestFocus());
-        categoryNameTextField.setOnAction(e -> priceTextField.requestFocus());
+        productNameTextField.setOnAction(e -> categoryComboBox.requestFocus());
+        categoryComboBox.setOnAction(e -> priceTextField.requestFocus());
         priceTextField.setOnAction(e -> quantityTextField.requestFocus());
         quantityTextField.setOnAction(e -> addShipmentAction());
-
     }
 
     private void addShipmentAction() {
         String name = productNameTextField.getText().trim();
-        String categoryName = categoryNameTextField.getText().trim().toLowerCase();
+        String categoryName = (categoryComboBox.getValue() == null) ? "" : categoryComboBox.getValue().trim().toLowerCase();
         String priceStr = priceTextField.getText().trim();
         String qtyStr = quantityTextField.getText().trim();
 
@@ -168,6 +178,7 @@ public class AddShipment {
                 UIHelperC.showAlert(Alert.AlertType.INFORMATION, "Success");
                 clearFields();
                 stage.close();
+                loadCategoriesIntoComboBox();
             } else {
                 UIHelperC.showAlert(Alert.AlertType.ERROR, "Failed");
             }
@@ -181,12 +192,39 @@ public class AddShipment {
 
     private void clearFields(){
         productNameTextField.clear();
-        categoryNameTextField.clear();
+        categoryComboBox.setValue(null);
         priceTextField.clear();
         quantityTextField.clear();
     }
 
     public void showStage() {
+        refreshCategories();
         stage.show();
+    }
+
+    private void loadCategoriesIntoComboBox() {
+        categoryList.clear();
+
+        try(Connection con = DBUtil.getConnection()){
+            if (con == null) {
+                return;
+            }
+            CategoryDAO categoryDAO = new CategoryDAO();
+
+            var categories = categoryDAO.getAllCategories(con);
+
+            for (var category : categories) {
+                categoryList.add(category.getName());
+            }
+            categoryComboBox.setItems(categoryList);
+
+        }catch (Exception e) {
+            e.printStackTrace();
+            UIHelperC.showAlert(Alert.AlertType.ERROR, "Error loading Categories");
+        }
+    }
+
+    public void refreshCategories(){
+        loadCategoriesIntoComboBox();
     }
 }

@@ -4,6 +4,10 @@ module com.example.comp333finalproj {
     requires java.sql;
     requires mysql.connector.j;
     requires jdk.jdi;
+    requires java.desktop;
+    requires kernel;
+    requires io;
+    requires layout;
 
     opens EmployeeView to javafx.base, javafx.fxml;
     opens Product to javafx.base, javafx.fxml;

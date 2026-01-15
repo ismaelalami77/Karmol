@@ -65,7 +65,7 @@ public class CustomerView {
         leftVBox.setSpacing(15);
         leftVBox.setPadding(new Insets(20));
 
-        searchTextField = UIHelperC.createStyledTextField("Name");
+        searchTextField = UIHelperC.createStyledTextField("Phone number");
 
         addBtn = UIHelperC.createStyledButton("Add");
         updateBtn = UIHelperC.createStyledButton("Update");
@@ -84,6 +84,7 @@ public class CustomerView {
         addBtn.setOnAction(e -> addCustomerScene.showStage());
         updateBtn.setOnAction(e -> updateAction());
         removeBtn.setOnAction(e -> deleteCustomer());
+        searchTextField.textProperty().addListener((obs, oldV, newV) -> filterTable(newV));
     }
 
     public static void refreshTable() {
@@ -148,5 +149,26 @@ public class CustomerView {
 
     public BorderPane getRoot() {
         return root;
+    }
+
+    private void filterTable(String text) {
+        if (text == null || text.trim().isEmpty()) {
+            observableCustomers.setAll(customers);
+            return;
+        }
+
+        String q = text.trim().toLowerCase();
+        ArrayList<Customer> filtered = new ArrayList<>();
+
+        for (Customer c : customers) {
+            String n = c.getCustomerPhone();
+
+
+            if (n.contains(q)) {
+                filtered.add(c);
+            }
+        }
+
+        observableCustomers.setAll(filtered);
     }
 }

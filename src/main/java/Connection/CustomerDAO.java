@@ -89,6 +89,28 @@ public class CustomerDAO {
         return null;
     }
 
+    public Customer getCustomerByPhone(int id) {
+        String sql = "SELECT * FROM customers WHERE customer_phone = ?";
+        try (Connection con = DBUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()){
+                return new Customer(
+                        rs.getInt("customer_id"),
+                        rs.getString("customer_name"),
+                        rs.getString("customer_email"),
+                        rs.getString("customer_phone"),
+                        rs.getString("customer_address")
+                );
+            }
+        }catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
     public boolean deleteCustomerByID(Connection con, int customerId) {
         String sql = "DELETE FROM customers WHERE customer_id = ?";
 

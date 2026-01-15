@@ -27,15 +27,20 @@ public class ViewProducts {
     private Text manageProductsText;
     private TextField searchTextField;
 
-    private Button editBtn, addBtn;
+    private Button editBtn, addShipmentBtn, addCategoryBtn;
 
     private AddShipment addShipment;
+    private AddCategory addCategory;
 
     public ViewProducts() {
         root = new BorderPane();
 
-        // ✅ pass refresh callback to AddShipment (see note below)
         addShipment = new AddShipment(this::refreshTable);
+        addCategory = new AddCategory(() -> {
+            refreshTable();
+
+            addShipment.refreshCategories();
+        });
 
         centerVBox = new VBox();
         centerVBox.setAlignment(Pos.CENTER);
@@ -72,12 +77,14 @@ public class ViewProducts {
 
         searchTextField = UIHelperC.createStyledTextField("Product name");
         editBtn = UIHelperC.createStyledButton("Edit Product");
-        addBtn = UIHelperC.createStyledButton("Add Shipment");
+        addShipmentBtn = UIHelperC.createStyledButton("Add Shipment");
+        addCategoryBtn = UIHelperC.createStyledButton("Add Category");
 
-        leftVBox.getChildren().addAll(searchTextField, editBtn, addBtn);
+        leftVBox.getChildren().addAll(searchTextField, editBtn, addShipmentBtn, addCategoryBtn);
 
         editBtn.setOnAction(e -> editAction());
-        addBtn.setOnAction(e -> addShipment.showStage());
+        addShipmentBtn.setOnAction(e -> addShipment.showStage());
+        addCategoryBtn.setOnAction(e -> addCategory.showStage());
 
         // ✅ search filter
         searchTextField.textProperty().addListener((obs, oldV, newV) -> filterTable(newV));

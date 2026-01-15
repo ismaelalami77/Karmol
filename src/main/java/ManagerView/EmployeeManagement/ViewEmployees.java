@@ -4,6 +4,7 @@ import Connection.EmployeeDAO;
 import Connection.DBUtil;
 
 import EmployeeView.Customer;
+import Product.Product;
 import com.example.comp333finalproj.UIHelperC;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -20,11 +21,9 @@ import java.util.ArrayList;
 
 
 public class ViewEmployees {
-    private BorderPane root;
-
     public static ArrayList<Employee> employees = new ArrayList<>();
     public static ObservableList<Employee> observableEmployees = FXCollections.observableArrayList();
-
+    private BorderPane root;
     private TableView<Employee> employeesTable;
     private VBox leftVBox, centerVBox;
     private Text manageEmployeesText;
@@ -64,7 +63,7 @@ public class ViewEmployees {
         addressCol.setCellValueFactory(new PropertyValueFactory<>("address"));
 
         employeesTable.getColumns().addAll(
-                idCol, usernameCol,firstNameCol, lastNameCol, phoneCol, addressCol
+                idCol, usernameCol, firstNameCol, lastNameCol, phoneCol, addressCol
         );
 
         employeesTable.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -96,8 +95,14 @@ public class ViewEmployees {
         addBtn.setOnAction(e -> addEmployeeScene.showStage());
         updateBtn.setOnAction(e -> updateAction());
         removeBtn.setOnAction(e -> deleteEmployee());
+        searchTextField.textProperty().addListener((obs, oldV, newV) -> filterTable(newV));
 
         loadEmployees();
+    }
+
+    public static void refreshTable() {
+        observableEmployees.clear();
+        observableEmployees.addAll(employees);
     }
 
     private void deleteEmployee() {
@@ -133,6 +138,7 @@ public class ViewEmployees {
 
 
     }
+
     private void updateAction() {
         Employee selectedEmployee = employeesTable.getSelectionModel().getSelectedItem();
 
@@ -152,13 +158,28 @@ public class ViewEmployees {
         observableEmployees.addAll(employees);
     }
 
-    public static void refreshTable() {
-        observableEmployees.clear();
-        observableEmployees.addAll(employees);
-    }
-
-
     public BorderPane getRoot() {
         return root;
+    }
+
+    private void filterTable(String text) {
+        if (text == null || text.trim().isEmpty()) {
+            observableEmployees.setAll(employees);
+            return;
+        }
+
+        String q = text.trim().toLowerCase();
+        ArrayList<Employee> filtered = new ArrayList<>();
+
+        for (Employee e : employees) {
+            String n = e.getFullName() == null ? "" : e.getFullName().toLowerCase();
+
+
+            if (n.contains(q)) {
+                filtered.add(e);
+            }
+        }
+
+        observableEmployees.setAll(filtered);
     }
 }

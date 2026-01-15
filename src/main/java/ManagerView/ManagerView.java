@@ -40,6 +40,13 @@ public class ManagerView {
         stage = new Stage();
         scene = new Scene(root, 900, 600);
 
+        scene.getStylesheets().add(
+                getClass().getResource("/com/example/comp333finalproj/employee-menu.css").toExternalForm()
+        );
+        scene.getStylesheets().add(
+                getClass().getResource("/com/example/comp333finalproj/style.css").toExternalForm()
+        );
+
         managerMenu.getViewEmployeeMenuItem().setOnAction(e -> {
             root.setCenter(viewEmployees.getRoot());
         });

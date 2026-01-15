@@ -90,9 +90,14 @@ public class CashView {
 
 
         addBtn = UIHelperC.createStyledButton("Add Product");
-        addBtn.setOnAction(e -> addProductScene.showStage());
-        customerIDTextField = UIHelperC.createStyledTextField("Customer ID");
+        addBtn.setOnAction(e -> {
+            addProductScene.resetToCategories();
+            addProductScene.showStage();
+        });
+
+        customerIDTextField = UIHelperC.createStyledTextField("Customer phone");
         customerIDTextField.setOnAction(e -> loadCustomerName());
+
 
         payBtn = UIHelperC.createStyledButton("Pay");
         payBtn.setOnAction(e -> payAction(user));
@@ -182,18 +187,18 @@ public class CashView {
     }
 
     private void loadCustomerName() {
-        String idText = customerIDTextField.getText().trim();
+        String phoneText = customerIDTextField.getText().trim();
 
-        if (idText.isEmpty()) {
+        if (phoneText.isEmpty()) {
             customerIDTextField.clear();
             return;
         }
 
         try {
-            int customerID = Integer.parseInt(idText);
+            int customerPhone = Integer.parseInt(phoneText);
 
             CustomerDAO customerDAO = new CustomerDAO();
-            Customer customer = customerDAO.getCustomerById(customerID);
+            Customer customer = customerDAO.getCustomerByPhone(customerPhone);
 
             if (customer != null) {
                 customerNameText.setText("Customer: " + customer.getCustomerName());
