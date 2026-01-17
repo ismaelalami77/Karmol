@@ -36,9 +36,7 @@ import javafx.scene.text.Text;
 import java.awt.Desktop;
 import java.io.File;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.util.ArrayList;
 
 public class OrderHistory {
@@ -50,6 +48,11 @@ public class OrderHistory {
     private final BorderPane root;
     private final VBox centerVbox;
     private final Text titleText;
+
+    private static final DeviceRgb BRAND_GREEN = new DeviceRgb(0, 166, 80);
+    private static final DeviceRgb LIGHT_GREEN = new DeviceRgb(230, 247, 239); // background
+    private static final DeviceRgb ROW_ALT = new DeviceRgb(210, 238, 225);     // zebra rows
+
 
     public OrderHistory() {
         root = new BorderPane();
@@ -177,15 +180,35 @@ public class OrderHistory {
 
             document.add(new Paragraph(" "));
 
+            String employeeName = "N/A";
+            String customerName = "N/A";
+
+            try(Connection con = DBUtil.getConnection()) {
+                if (con != null){
+                    employeeName = getEmployeeName(con, order.getEmployeeId());
+                    customerName = getCustomerName(con, order.getCustomerId());
+                }
+            }catch (Exception e) {
+                e.printStackTrace();
+            }
+
             // Details table
             Table detailsTable = new Table(new float[]{1, 2});
             detailsTable.setHorizontalAlignment(HorizontalAlignment.CENTER);
+            detailsTable.setBackgroundColor(LIGHT_GREEN);
+
 
             detailsTable.addCell(new Cell().add(new Paragraph("Employee ID:").setBold()));
             detailsTable.addCell(new Cell().add(new Paragraph(String.valueOf(order.getEmployeeId()))));
 
+            detailsTable.addCell(new Cell().add(new Paragraph("Employee Name:").setBold()));
+            detailsTable.addCell(new Cell().add(new Paragraph(employeeName)));
+
             detailsTable.addCell(new Cell().add(new Paragraph("Customer ID:").setBold()));
             detailsTable.addCell(new Cell().add(new Paragraph(String.valueOf(order.getCustomerId()))));
+
+            detailsTable.addCell(new Cell().add(new Paragraph("Customer Name:").setBold()));
+            detailsTable.addCell(new Cell().add(new Paragraph(customerName)));
 
             detailsTable.addCell(new Cell().add(new Paragraph("Order Date:").setBold()));
             detailsTable.addCell(new Cell().add(new Paragraph(String.valueOf(order.getOrderDate()))));
@@ -263,46 +286,68 @@ public class OrderHistory {
         }
     }
 
-    private void addHeader(Table table, String text) throws IOException {
-        table.addHeaderCell(new Cell()
-                .setBackgroundColor(ColorConstants.DARK_GRAY)
-                .setFontColor(ColorConstants.WHITE)
-                .add(new Paragraph(text).setBold())
+    private void addHeader(Table table, String text) {
+        table.addHeaderCell(
+                new Cell()
+                        .setBackgroundColor(BRAND_GREEN)
+                        .setFontColor(ColorConstants.WHITE)
+                        .setTextAlignment(TextAlignment.CENTER)
+                        .setPadding(6)
+                        .add(new Paragraph(text).setBold())
         );
     }
 
+
+
     private void addRowToTable(Table table, OrderDAO.OrderDetails od, boolean alternate) {
-        DeviceRgb alt = new DeviceRgb(240, 240, 240);
-        DeviceRgb normal = new DeviceRgb(255, 255, 255);
 
-        Cell c1 = new Cell().add(new Paragraph(String.valueOf(od.getProductId())));
-        Cell c2 = new Cell().add(new Paragraph(od.getProductName()));
-        Cell c3 = new Cell().add(new Paragraph(od.getCategoryName()));
-        Cell c4 = new Cell().add(new Paragraph(String.valueOf(od.getQuantity())));
-        Cell c5 = new Cell().add(new Paragraph(String.format("%.2f", od.getUnitPrice())));
-        Cell c6 = new Cell().add(new Paragraph(String.format("%.2f", od.getLineTotal())));
+        DeviceRgb bg = alternate ? ROW_ALT : LIGHT_GREEN;
 
-        if (alternate) {
-            c1.setBackgroundColor(alt);
-            c2.setBackgroundColor(alt);
-            c3.setBackgroundColor(alt);
-            c4.setBackgroundColor(alt);
-            c5.setBackgroundColor(alt);
-            c6.setBackgroundColor(alt);
-        } else {
-            c1.setBackgroundColor(normal);
-            c2.setBackgroundColor(normal);
-            c3.setBackgroundColor(normal);
-            c4.setBackgroundColor(normal);
-            c5.setBackgroundColor(normal);
-            c6.setBackgroundColor(normal);
-        }
-
-        table.addCell(c1);
-        table.addCell(c2);
-        table.addCell(c3);
-        table.addCell(c4);
-        table.addCell(c5);
-        table.addCell(c6);
+        table.addCell(makeCell(String.valueOf(od.getProductId()), bg));
+        table.addCell(makeCell(od.getProductName(), bg));
+        table.addCell(makeCell(od.getCategoryName(), bg));
+        table.addCell(makeCell(String.valueOf(od.getQuantity()), bg));
+        table.addCell(makeCell(String.format("%.2f", od.getUnitPrice()), bg));
+        table.addCell(makeCell(String.format("%.2f", od.getLineTotal()), bg));
     }
+
+
+    private Cell makeCell(String text, DeviceRgb bg) {
+        return new Cell()
+                .setBackgroundColor(bg)
+                .setTextAlignment(TextAlignment.CENTER)
+                .setPadding(5)
+                .add(new Paragraph(text));
+    }
+
+
+    private String getEmployeeName(Connection con, int employeeId) throws SQLException {
+        String sql = "SELECT full_name FROM users WHERE id = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, employeeId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String name = rs.getString("full_name");
+                    return (name == null || name.trim().isEmpty()) ? "N/A" : name;
+                }
+            }
+        }
+        return "N/A";
+    }
+
+
+    private String getCustomerName(Connection con, int customerId) throws SQLException {
+        String sql = "SELECT customer_name FROM customers WHERE customer_id = ?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, customerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String name = rs.getString("customer_name");
+                    return (name == null || name.trim().isEmpty()) ? "N/A" : name;
+                }
+            }
+        }
+        return "N/A";
+    }
+
 }

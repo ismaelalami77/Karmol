@@ -62,7 +62,7 @@ public class AddShipment {
 
         categoryNameText = UIHelperC.createInfoText("Category: ");
 
-        categoryComboBox = new ComboBox<>();
+        categoryComboBox = UIHelperC.createComboBox();
         categoryComboBox.setPromptText("Select Category");
         categoryComboBox.setPrefWidth(250);
         categoryComboBox.setEditable(true);
@@ -143,9 +143,13 @@ public class AddShipment {
             return;
         }
 
-        if (price <= 0 || qty <= 0) {
-            UIHelperC.showAlert(Alert.AlertType.ERROR, "Invalid Values");
+        if (price <= 0) {
+            UIHelperC.showAlert(Alert.AlertType.ERROR, "Price must be greater than 0");
             return;
+        }
+
+        if (qty < 0){
+            UIHelperC.showAlert(Alert.AlertType.ERROR, "Quantity must be greater than 0");
         }
 
         ProductDAO productDAO = new ProductDAO();

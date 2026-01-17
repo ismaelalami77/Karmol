@@ -25,7 +25,7 @@ public class CustomerView {
     private VBox leftVBox, centerVBox;
     private Text manageCustomersText;
     private TextField searchTextField;
-    private Button removeBtn, updateBtn, addBtn;
+    private Button updateBtn, addBtn;
     private AddCustomerScene addCustomerScene;
     private UpdateCustomerScene updateCustomerScene;
 
@@ -69,9 +69,8 @@ public class CustomerView {
 
         addBtn = UIHelperC.createStyledButton("Add");
         updateBtn = UIHelperC.createStyledButton("Update");
-        removeBtn = UIHelperC.createStyledButton("Remove");
 
-        leftVBox.getChildren().addAll(searchTextField, addBtn, updateBtn, removeBtn);
+        leftVBox.getChildren().addAll(searchTextField, addBtn, updateBtn);
 
         root.setCenter(centerVBox);
         root.setLeft(leftVBox);
@@ -83,7 +82,6 @@ public class CustomerView {
 
         addBtn.setOnAction(e -> addCustomerScene.showStage());
         updateBtn.setOnAction(e -> updateAction());
-        removeBtn.setOnAction(e -> deleteCustomer());
         searchTextField.textProperty().addListener((obs, oldV, newV) -> filterTable(newV));
     }
 
@@ -113,39 +111,6 @@ public class CustomerView {
         }
     }
 
-    private void deleteCustomer() {
-        Customer customer = customersTable.getSelectionModel().getSelectedItem();
-        if (customer == null) {
-            return;
-        }
-
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Delete Customer");
-        confirm.setContentText("Are you sure you want to delete this customer?");
-
-        confirm.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
-
-        confirm.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.YES) {
-                try (Connection con = DBUtil.getConnection()) {
-                    CustomerDAO dao = new CustomerDAO();
-
-                    boolean deleted = dao.deleteCustomerByID(con, customer.getCustomerId());
-
-                    if (deleted) {
-                        customers.removeIf(c -> c.getCustomerId() == customer.getCustomerId());
-                        refreshTable();
-
-                        UIHelperC.showAlert(Alert.AlertType.INFORMATION, "Customer deleted successfully");
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-
-    }
 
     public BorderPane getRoot() {
         return root;

@@ -121,7 +121,6 @@ public class AddEmployeeScene {
     }
 
     private void addEmployee() {
-
         String username  = employeeUsernameTextField.getText().trim();
         String firstName = employeeFirstNameTextField.getText().trim();
         String lastName  = employeeLastNameTextField.getText().trim();
@@ -134,24 +133,54 @@ public class AddEmployeeScene {
             UIHelperC.showAlert(Alert.AlertType.WARNING, "Please enter first name!");
             return;
         }
+
+        if (!isValidName(firstName)) {
+            UIHelperC.showAlert(Alert.AlertType.WARNING, "Please enter a valid first name!");
+            return;
+        }
+
         if (lastName.isEmpty()) {
             UIHelperC.showAlert(Alert.AlertType.WARNING, "Please enter last name!");
             return;
         }
+
+        if (!isValidName(lastName)) {
+            UIHelperC.showAlert(Alert.AlertType.WARNING, "Please enter a valid last name!");
+            return;
+        }
+
         if (username.isEmpty()) {
             UIHelperC.showAlert(Alert.AlertType.WARNING, "Please enter username!");
             return;
         }
+
+        if (!isValidName(username)) {
+            UIHelperC.showAlert(Alert.AlertType.WARNING, "Please enter a valid username!");
+            return;
+        }
+
         if (password.isEmpty()) {
             UIHelperC.showAlert(Alert.AlertType.WARNING, "Please enter password!");
             return;
         }
+
         if (phone.isEmpty()) {
             UIHelperC.showAlert(Alert.AlertType.WARNING, "Please enter phone number!");
             return;
         }
+
+        if (!isValidPhone(phone)) {
+            UIHelperC.showAlert(Alert.AlertType.WARNING, "Please enter a valid phone number!");
+            return;
+        }
+
         if (address.isEmpty()) {
             UIHelperC.showAlert(Alert.AlertType.WARNING, "Please enter address!");
+            return;
+        }
+
+        if (!isValidAddress(address)) {
+            UIHelperC.showAlert(Alert.AlertType.WARNING, "Please enter a valid address!");
             return;
         }
 
@@ -201,5 +230,17 @@ public class AddEmployeeScene {
 
     public void showStage() {
         stage.show();
+    }
+
+    private boolean isValidName(String name) {
+        return name.matches("[a-zA-Z]+");
+    }
+
+    private boolean isValidPhone(String phone) {
+        return phone.matches("\\d{10}");
+    }
+
+    private boolean isValidAddress(String address) {
+        return address.matches("[A-Za-z0-9 ,.]+");
     }
 }

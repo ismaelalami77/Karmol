@@ -20,18 +20,14 @@ import java.sql.Connection;
 import java.util.ArrayList;
 
 public class ShowProducts {
-    private BorderPane root;
-
-    private VBox centerVbox;
-    private GridPane grid;
-
-    private Text titleText;
-
-    private Button cancelButton;
-
     private final Category category;
     private final Runnable onClose;
     private final Runnable onBack;
+    private BorderPane root;
+    private VBox centerVbox;
+    private GridPane grid;
+    private Text titleText;
+    private Button cancelButton;
 
     public ShowProducts(Category category, Runnable onBack, Runnable onClose) {
         this.category = category;
@@ -73,7 +69,7 @@ public class ShowProducts {
     private void loadProducts() {
         grid.getChildren().clear();
 
-        try(Connection con = DBUtil.getConnection()) {
+        try (Connection con = DBUtil.getConnection()) {
             ProductDAO dao = new ProductDAO();
 
             int categoryID = category.getId();
@@ -84,30 +80,57 @@ public class ShowProducts {
             int row = 0;
 
             for (Product product : products) {
-                String btnText = product.getItemName() + " - " + product.getPricePerPiece();
+                String btnText = product.getItemName() + " - $" + product.getPricePerPiece();
 
                 Button btn = UIHelperC.createStyledButton(btnText);
                 btn.setPrefWidth(250);
 
-                btn.setOnAction(e -> addToCashTable(product));
+                if (product.getQuantity() <= 0) {
+                    btn.setDisable(true);
+                    btn.setText(product.getItemName() + " - Out of Stock");
+                } else {
+                    btn.setOnAction(e -> addToCashTable(product));
+                }
 
                 grid.add(btn, col, row);
 
                 col++;
-                if(col == 2){
+                if (col == 2) {
                     col = 0;
                     row++;
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             UIHelperC.showAlert(Alert.AlertType.ERROR, "Error loading products");
         }
     }
 
     private void addToCashTable(Product selectedProduct) {
-        for (Product product : CashView.products){
-            if(product.getId() == selectedProduct.getId()){
+
+        // selectedProduct.getQuantity() here MUST be the DB stock quantity
+        int stockQty = selectedProduct.getQuantity();
+
+        // how many already in cart?
+        int inCartQty = 0;
+        for (Product p : CashView.products) {
+            if (p.getId() == selectedProduct.getId()) {
+                inCartQty = p.getQuantity();
+                break;
+            }
+        }
+
+        // block if cart reached stock
+        if (inCartQty >= stockQty) {
+            UIHelperC.showAlert(Alert.AlertType.WARNING,
+                    "Not enough stock! Available: " + stockQty);
+
+            return;
+        }
+
+        // add/increase in cart
+        for (Product product : CashView.products) {
+            if (product.getId() == selectedProduct.getId()) {
                 product.setQuantity(product.getQuantity() + 1);
                 CashView.refreshTable();
                 return;

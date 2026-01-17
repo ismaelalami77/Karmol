@@ -37,52 +37,82 @@ public class OrderDAO {
         public double getLineTotal() { return lineTotal; }
     }
 
-    public int createOrderWithItems(Connection con, int employeeId, int customerId, ArrayList<Product> items) throws SQLException {
-        if (items == null || items.isEmpty()) return -1;
+    public int createOrderWithItems(Connection con, int employeeId, int customerId, ArrayList<Product> items) throws Exception {
+        String insertOrderSql =
+                "INSERT INTO orders (employee_id, customer_id, order_date, total_amount) VALUES (?, ?, NOW(), ?)";
 
-        String insertOrderSql = "INSERT INTO orders(employee_id, customer_id, total_amount) VALUES (?, ?, ?)";
-        String insertItemSql  = "INSERT INTO order_items(order_id, product_id, quantity, unit_price, line_total) VALUES (?, ?, ?, ?, ?)";
+        String insertItemSql =
+                "INSERT INTO order_items (order_id, product_id, quantity, unit_price, line_total) VALUES (?, ?, ?, ?, ?)";
 
-        double total = 0;
-        for (Product p : items) total += p.getTotalPrice();
+        String updateStockSql =
+                "UPDATE products SET quantity = quantity - ? WHERE id = ? AND quantity >= ?";
 
-        boolean oldAutoCommit = con.getAutoCommit();
-        con.setAutoCommit(false);
+        PreparedStatement orderPS = null;
+        PreparedStatement itemPS = null;
+        PreparedStatement stockPS = null;
+        ResultSet rs = null;
 
-        try (PreparedStatement psOrder = con.prepareStatement(insertOrderSql, Statement.RETURN_GENERATED_KEYS);
-             PreparedStatement psItem  = con.prepareStatement(insertItemSql)) {
+        try {
+            con.setAutoCommit(false);
 
-            psOrder.setInt(1, employeeId);
-            psOrder.setInt(2, customerId);
-            psOrder.setDouble(3, total);
-            psOrder.executeUpdate();
+            double totalAmount = 0;
+            for (Product p : items) totalAmount += p.getTotalPrice();
 
-            int newOrderId;
-            try (ResultSet rs = psOrder.getGeneratedKeys()) {
-                if (!rs.next()) throw new SQLException("Creating order failed, no ID returned.");
-                newOrderId = rs.getInt(1);
-            }
+            // 1) Insert order
+            orderPS = con.prepareStatement(insertOrderSql, Statement.RETURN_GENERATED_KEYS);
+            orderPS.setInt(1, employeeId);
+            orderPS.setInt(2, customerId);
+            orderPS.setDouble(3, totalAmount);
+            orderPS.executeUpdate();
+
+            rs = orderPS.getGeneratedKeys();
+            if (!rs.next()) throw new Exception("Failed to create order (no generated key)");
+            int orderId = rs.getInt(1);
+
+            // 2) Insert items + update stock
+            itemPS = con.prepareStatement(insertItemSql);
+            stockPS = con.prepareStatement(updateStockSql);
 
             for (Product p : items) {
-                psItem.setInt(1, newOrderId);
-                psItem.setInt(2, p.getId());
-                psItem.setInt(3, p.getQuantity());
-                psItem.setDouble(4, p.getPricePerPiece());
-                psItem.setDouble(5, p.getTotalPrice());
-                psItem.addBatch();
+                int productId = p.getId();
+                int qty = p.getQuantity();
+                double unitPrice = p.getPricePerPiece();
+                double lineTotal = p.getTotalPrice();
+
+                // 2a) Decrease stock first (recommended)
+                stockPS.setInt(1, qty);
+                stockPS.setInt(2, productId);
+                stockPS.setInt(3, qty);
+
+                int affected = stockPS.executeUpdate();
+                if (affected == 0) {
+                    throw new Exception("Not enough stock for: " + p.getItemName());
+                }
+
+                // 2b) Insert order item
+                itemPS.setInt(1, orderId);
+                itemPS.setInt(2, productId);
+                itemPS.setInt(3, qty);
+                itemPS.setDouble(4, unitPrice);
+                itemPS.setDouble(5, lineTotal);
+                itemPS.executeUpdate();
             }
-            psItem.executeBatch();
 
             con.commit();
-            return newOrderId;
+            return orderId;
 
-        } catch (SQLException ex) {
+        } catch (Exception e) {
             con.rollback();
-            throw ex;
+            throw e;
         } finally {
-            con.setAutoCommit(oldAutoCommit);
+            con.setAutoCommit(true);
+            if (rs != null) rs.close();
+            if (orderPS != null) orderPS.close();
+            if (itemPS != null) itemPS.close();
+            if (stockPS != null) stockPS.close();
         }
     }
+
 
     public ArrayList<Order> getAllOrders(Connection con) throws SQLException {
         ArrayList<Order> list = new ArrayList<>();

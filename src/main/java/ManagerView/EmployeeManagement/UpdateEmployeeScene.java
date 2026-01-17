@@ -154,6 +154,21 @@ public class UpdateEmployeeScene {
             return;
         }
 
+        if (!isValidName(employeeUsername) || !isValidName(employeeFirstName) || !isValidName(employeeLastName)) {
+            UIHelperC.showAlert(Alert.AlertType.WARNING, "Please enter a valid name");
+            return;
+        }
+
+        if (!isValidPhone(employeePhone)) {
+            UIHelperC.showAlert(Alert.AlertType.WARNING, "Please enter a valid phone number");
+            return;
+        }
+
+        if (!isValidAddress(employeeAddress)) {
+            UIHelperC.showAlert(Alert.AlertType.WARNING, "Please enter a valid address");
+            return;
+        }
+
         // update selected employee object
         selectedEmployee.setUsername(employeeUsername);
         selectedEmployee.setFirstName(employeeFirstName);
@@ -182,5 +197,17 @@ public class UpdateEmployeeScene {
 
     public void showStage() {
         stage.show();
+    }
+
+    private boolean isValidName(String name) {
+        return name.matches("[a-zA-Z]+");
+    }
+
+    private boolean isValidPhone(String phone) {
+        return phone.matches("\\d{10}");
+    }
+
+    private boolean isValidAddress(String address) {
+        return address.matches("[A-Za-z0-9 ,.]+");
     }
 }

@@ -11,7 +11,7 @@ public class ProductDAO {
         ArrayList<Product> products = new ArrayList<>();
 
         String sql =
-                "SELECT p.id, p.productName, p.productPrice, c.name AS categoryName " +
+                "SELECT p.id, p.productName, p.productPrice, p.quantity, c.name AS categoryName " +
                         "FROM products p " +
                         "JOIN categories c ON p.category_id = c.id " +
                         "WHERE p.category_id = ? " +
@@ -22,12 +22,16 @@ public class ProductDAO {
 
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
-                    products.add(new Product(
+                    Product p = new Product(
                             rs.getInt("id"),
                             rs.getString("productName"),
                             rs.getString("categoryName"),
                             rs.getDouble("productPrice")
-                    ));
+                    );
+
+                    p.setQuantity(rs.getInt("quantity"));
+
+                    products.add(p);
                 }
             }
         } catch (SQLException e) {
@@ -36,6 +40,7 @@ public class ProductDAO {
 
         return products;
     }
+
 
 
     public Integer getCategoryIdByName(Connection con, String categoryName) {
@@ -120,5 +125,22 @@ public class ProductDAO {
 
         return list;
     }
+
+    public boolean updateProduct(Connection con, int productId, String name, int categoryId, double price, int qty) {
+        String sql = "UPDATE products SET productName=?, category_id=?, productPrice=?, quantity=? WHERE id=?";
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, name);
+            ps.setInt(2, categoryId);
+            ps.setDouble(3, price);
+            ps.setInt(4, qty);
+            ps.setInt(5, productId);
+            return ps.executeUpdate() > 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+
 
 }

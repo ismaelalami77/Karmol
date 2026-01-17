@@ -3,7 +3,6 @@ package Login;
 import Connection.UserDAO;
 import EmployeeView.EmployeeView;
 import ManagerView.ManagerView;
-import com.example.comp333finalproj.UIHelper;
 import com.example.comp333finalproj.UIHelperC;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -97,6 +96,7 @@ public class Login {
             stage.close();
         } else if ("MANAGER".equalsIgnoreCase(u.getRole())) {
             new ManagerView(u).show();
+            stage.close();
         }
     }
 

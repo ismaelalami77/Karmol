@@ -28,7 +28,7 @@ public class ViewEmployees {
     private VBox leftVBox, centerVBox;
     private Text manageEmployeesText;
     private TextField searchTextField;
-    private Button removeBtn, updateBtn, addBtn;
+    private Button updateBtn, addBtn;
     private AddEmployeeScene addEmployeeScene;
     private UpdateEmployeeScene updateEmployeeScene;
 
@@ -82,9 +82,8 @@ public class ViewEmployees {
 
         addBtn = UIHelperC.createStyledButton("Add");
         updateBtn = UIHelperC.createStyledButton("Update");
-        removeBtn = UIHelperC.createStyledButton("Remove");
 
-        leftVBox.getChildren().addAll(searchTextField, addBtn, updateBtn, removeBtn);
+        leftVBox.getChildren().addAll(searchTextField, addBtn, updateBtn);
 
         root.setCenter(centerVBox);
         root.setLeft(leftVBox);
@@ -94,7 +93,6 @@ public class ViewEmployees {
 
         addBtn.setOnAction(e -> addEmployeeScene.showStage());
         updateBtn.setOnAction(e -> updateAction());
-        removeBtn.setOnAction(e -> deleteEmployee());
         searchTextField.textProperty().addListener((obs, oldV, newV) -> filterTable(newV));
 
         loadEmployees();
@@ -105,39 +103,6 @@ public class ViewEmployees {
         observableEmployees.addAll(employees);
     }
 
-    private void deleteEmployee() {
-        Employee employee = employeesTable.getSelectionModel().getSelectedItem();
-        if (employee == null) {
-            return;
-        }
-
-        Alert confirm = new Alert(Alert.AlertType.CONFIRMATION);
-        confirm.setTitle("Delete Employee");
-        confirm.setContentText("Are you sure you want to delete this employee?");
-
-        confirm.getButtonTypes().setAll(ButtonType.YES, ButtonType.NO);
-
-        confirm.showAndWait().ifPresent(response -> {
-            if (response == ButtonType.YES) {
-                try (Connection con = DBUtil.getConnection()) {
-                    EmployeeDAO dao = new EmployeeDAO();
-
-                    boolean deleted = dao.deleteEmployeeByID(con, employee.getEmployeeId());
-
-                    if (deleted) {
-                        employees.removeIf(c -> c.getEmployeeId() == employee.getEmployeeId());
-                        refreshTable();
-
-                        UIHelperC.showAlert(Alert.AlertType.INFORMATION, "Employee deleted successfully");
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
-
-
-    }
 
     private void updateAction() {
         Employee selectedEmployee = employeesTable.getSelectionModel().getSelectedItem();

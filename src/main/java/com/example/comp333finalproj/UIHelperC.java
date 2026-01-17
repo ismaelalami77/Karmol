@@ -1,9 +1,6 @@
 package com.example.comp333finalproj;
 
-import javafx.scene.control.Alert;
-import javafx.scene.control.Button;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.text.Text;
 
 public class UIHelperC {
@@ -117,5 +114,20 @@ public class UIHelperC {
                 "-fx-font-weight: bold; " +
                 "-fx-font-size: 28px;");
         return infoText;
+    }
+
+    public static ComboBox<String> createComboBox() {
+        ComboBox<String> comboBox = new ComboBox<>();
+
+        comboBox.setPrefSize(200, 60);
+        comboBox.setStyle("-fx-background-radius: 15px; " +
+                "-fx-background-color: white; " +
+                "-fx-font-family: '" + fontFamily + "';" +
+                "-fx-border-color: " + accentColor + "; " +
+                "-fx-border-radius: 15px; " +
+                "-fx-font-size: 20px; " +
+                "-fx-text-fill: black;");
+
+        return comboBox;
     }
 }

@@ -33,6 +33,8 @@ public class CashView {
     private Text titleText, cashierNameText, customerNameText, orderIDText;
     private AddProductScene addProductScene = new AddProductScene();
 
+    private Customer selectedCustomer = null;
+
     public CashView(User user) {
         root = new BorderPane();
 
@@ -132,39 +134,43 @@ public class CashView {
             return;
         }
 
-        String idText = customerIDTextField.getText().trim();
-        if (idText.isEmpty()){
-            UIHelperC.showAlert(Alert.AlertType.WARNING, "Enter Customer ID first");
+        String phone = customerIDTextField.getText().trim();
+        if (phone.isEmpty()){
+            UIHelperC.showAlert(Alert.AlertType.WARNING, "Enter Customer phone first");
             return;
         }
 
-        int customerID;
-        try{
-            customerID = Integer.parseInt(idText);
-        }catch (NumberFormatException e){
-            UIHelperC.showAlert(Alert.AlertType.WARNING, "Invalid Customer ID");
+        if (selectedCustomer == null || !phone.equals(selectedCustomer.getCustomerPhone())){
+            loadCustomerName();
+        }
+
+        if (selectedCustomer == null){
+            UIHelperC.showAlert(Alert.AlertType.WARNING, "Customer not found");
             return;
         }
 
+        int customerId = selectedCustomer.getCustomerId();
         int employeeId = user.getId();
+
 
         try(Connection con = DBUtil.getConnection()){
             OrderDAO dao = new OrderDAO();
-            int newOrderId = dao.createOrderWithItems(con, employeeId, customerID, products);
+            int newOrderId = dao.createOrderWithItems(con, employeeId, customerId, products);
 
             products.clear();
-
             refreshTable();
 
             customerIDTextField.clear();
+            selectedCustomer = null;
             customerNameText.setText("Customer: ");
             orderIDText.setText("Order #: " + newOrderId);
 
             OrderHistory.loadAllOrdersFromDB();
             UIHelperC.showAlert(Alert.AlertType.INFORMATION, "Payment Successful");
+
         }catch (Exception e){
             e.printStackTrace();
-            UIHelperC.showAlert(Alert.AlertType.ERROR, "Payment failed");
+            UIHelperC.showAlert(Alert.AlertType.ERROR, e.getMessage());
         }
     }
 
@@ -190,6 +196,7 @@ public class CashView {
         String phoneText = customerIDTextField.getText().trim();
 
         if (phoneText.isEmpty()) {
+            selectedCustomer = null;
             customerIDTextField.clear();
             return;
         }
@@ -198,15 +205,15 @@ public class CashView {
             int customerPhone = Integer.parseInt(phoneText);
 
             CustomerDAO customerDAO = new CustomerDAO();
-            Customer customer = customerDAO.getCustomerByPhone(customerPhone);
+            selectedCustomer = customerDAO.getCustomerByPhone(customerPhone);
 
-            if (customer != null) {
-                customerNameText.setText("Customer: " + customer.getCustomerName());
+            if (selectedCustomer != null) {
+                customerNameText.setText("Customer: " + selectedCustomer.getCustomerName());
             } else {
                 customerNameText.setText("Customer: ");
             }
         } catch (NumberFormatException e) {
-            UIHelperC.showAlert(Alert.AlertType.WARNING, "Invalid Customer ID");
+            UIHelperC.showAlert(Alert.AlertType.WARNING, "Invalid Customer");
         }
     }
 

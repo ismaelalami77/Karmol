@@ -124,6 +124,25 @@ public class UpdateCustomerScene {
             return;
         }
 
+        if (!isValidName(customerName)) {
+            UIHelperC.showAlert(Alert.AlertType.WARNING, "Customer name is invalid");
+            return;
+        }
+
+        if (!isValidEmail(customerEmail)) {
+            UIHelperC.showAlert(Alert.AlertType.WARNING, "Customer email is invalid");
+            return;
+        }
+        if (!isValidPhone(customerPhone)) {
+            UIHelperC.showAlert(Alert.AlertType.WARNING, "Phone number is invalid");
+            return;
+        }
+
+        if (!isValidAddress(customerAddress)) {
+            UIHelperC.showAlert(Alert.AlertType.WARNING, "Customer address is invalid");
+            return;
+        }
+
         try (Connection con = DBUtil.getConnection()) {
             CustomerDAO dao = new CustomerDAO();
 
@@ -150,5 +169,21 @@ public class UpdateCustomerScene {
 
     public void showStage() {
         stage.show();
+    }
+
+    private boolean isValidName(String name) {
+        return name.matches("[a-zA-Z]+");
+    }
+
+    private boolean isValidPhone(String phone) {
+        return phone.matches("\\d{10}");
+    }
+
+    private boolean isValidEmail(String email) {
+        return email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
+    }
+
+    private boolean isValidAddress(String address) {
+        return address.matches("[A-Za-z0-9 ,.]+");
     }
 }

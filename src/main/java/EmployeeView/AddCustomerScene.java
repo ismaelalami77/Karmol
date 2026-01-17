@@ -1,6 +1,5 @@
 package EmployeeView;
 
-import com.example.comp333finalproj.UIHelper;
 import com.example.comp333finalproj.UIHelperC;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -105,30 +104,50 @@ public class AddCustomerScene {
         String email = customerEmailTextFiled.getText().trim();
         String phone = customerPhoneTextFiled.getText().trim();
         String address = customerAddressTextFiled.getText().trim();
+
         if (name.isEmpty()) {
             UIHelperC.showAlert(Alert.AlertType.WARNING, "Please enter a name!");
             return;
         }
+        if (!isValidName(name)) {
+            UIHelperC.showAlert(Alert.AlertType.WARNING, "Name must contain letters only!");
+            return;
+        }
+
         if (email.isEmpty()) {
             UIHelperC.showAlert(Alert.AlertType.WARNING, "Please enter an email!");
             return;
         }
+        if (!isValidEmail(email)) {
+            UIHelperC.showAlert(Alert.AlertType.WARNING, "Invalid email format!");
+            return;
+        }
+
         if (phone.isEmpty()) {
             UIHelperC.showAlert(Alert.AlertType.WARNING, "Please enter a phone number!");
             return;
         }
+        if (!isValidPhone(phone)) {
+            UIHelperC.showAlert(Alert.AlertType.WARNING, "Phone must be exactly 10 digits!");
+            return;
+        }
+
         if (address.isEmpty()) {
             UIHelperC.showAlert(Alert.AlertType.WARNING, "Please enter an address!");
+            return;
+        }
+        if (!isValidAddress(address)) {
+            UIHelperC.showAlert(Alert.AlertType.WARNING, "Address contains invalid characters!");
             return;
         }
 
         Customer newCustomer = new Customer(0, name, email, phone, address);
 
-        try(Connection con = DBUtil.getConnection()){
+        try (Connection con = DBUtil.getConnection()) {
             CustomerDAO dao = new CustomerDAO();
             int newID = dao.insertCustomer(con, newCustomer);
 
-            if (newID != -1){
+            if (newID != -1) {
                 CustomerView.customers.add(new Customer(
                         newID,
                         newCustomer.getCustomerName(),
@@ -137,17 +156,34 @@ public class AddCustomerScene {
                         newCustomer.getCustomerAddress()
                 ));
                 CustomerView.refreshTable();
-                UIHelperC.showAlert(Alert.AlertType.INFORMATION, "Customer added!");
+                UIHelperC.showAlert(Alert.AlertType.INFORMATION, "Customer added successfully!");
                 stage.close();
-            }else {
+            } else {
                 UIHelperC.showAlert(Alert.AlertType.ERROR, "Customer could not be inserted!");
             }
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
+            UIHelperC.showAlert(Alert.AlertType.ERROR, "Database error occurred!");
         }
     }
 
     public void showStage() {
         stage.show();
+    }
+
+    private boolean isValidName(String name) {
+        return name.matches("[a-zA-Z]+");
+    }
+
+    private boolean isValidPhone(String phone) {
+        return phone.matches("\\d{10}");
+    }
+
+    private boolean isValidEmail(String email) {
+        return email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
+    }
+
+    private boolean isValidAddress(String address) {
+        return address.matches("[A-Za-z0-9 ,.]+");
     }
 }

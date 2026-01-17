@@ -31,11 +31,13 @@ public class ViewProducts {
 
     private AddShipment addShipment;
     private AddCategory addCategory;
+    private EditProduct editProduct;
 
     public ViewProducts() {
         root = new BorderPane();
 
         addShipment = new AddShipment(this::refreshTable);
+        editProduct = new EditProduct(this::refreshTable);
         addCategory = new AddCategory(() -> {
             refreshTable();
 
@@ -146,7 +148,10 @@ public class ViewProducts {
         if (selected == null) {
             UIHelperC.showAlert(Alert.AlertType.INFORMATION, "Please select a product to edit");
             return;
+        }else{
+            editProduct.showStage(selected);
         }
-        System.out.println("Edit: " + selected.getItemName());
+
+
     }
 }
