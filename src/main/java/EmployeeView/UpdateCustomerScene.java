@@ -1,6 +1,5 @@
 package EmployeeView;
 
-import com.example.comp333finalproj.UIHelper;
 import com.example.comp333finalproj.UIHelperC;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -28,10 +27,13 @@ public class UpdateCustomerScene {
     private GridPane grid;
     private HBox buttonsHbox;
     private VBox centerVbox;
+
     private Text updateCustomerText, customerNameText,
             customerEmailText, customerPhoneText, customerAddressText;
+
     private TextField customerNameTextField,
             customerEmailTextFiled, customerPhoneTextFiled, customerAddressTextFiled;
+
     private Button updateCustomerButton, cancelButton;
     private Customer selectedCustomer;
 
@@ -53,10 +55,13 @@ public class UpdateCustomerScene {
 
         customerNameText = UIHelperC.createInfoText("Name:");
         customerNameTextField = UIHelperC.createStyledTextField("Name");
+
         customerEmailText = UIHelperC.createInfoText("Email:");
         customerEmailTextFiled = UIHelperC.createStyledTextField("Email");
+
         customerPhoneText = UIHelperC.createInfoText("Phone:");
         customerPhoneTextFiled = UIHelperC.createStyledTextField("Phone");
+
         customerAddressText = UIHelperC.createInfoText("Address:");
         customerAddressTextFiled = UIHelperC.createStyledTextField("Address");
 
@@ -71,7 +76,6 @@ public class UpdateCustomerScene {
 
         grid.add(customerAddressText, 0, 3);
         grid.add(customerAddressTextFiled, 1, 3);
-
 
         buttonsHbox = new HBox();
         buttonsHbox.setAlignment(Pos.CENTER);
@@ -89,7 +93,6 @@ public class UpdateCustomerScene {
         scene = new Scene(root, 650, 500);
         stage.setScene(scene);
         stage.setTitle("Update Customer");
-
 
         cancelButton.setOnAction(e -> stage.close());
         updateCustomerButton.setOnAction(e -> updateCustomer());
@@ -110,16 +113,14 @@ public class UpdateCustomerScene {
     }
 
     private void updateCustomer() {
-        if (selectedCustomer == null) {
-            return;
-        }
+        if (selectedCustomer == null) return;
 
         String customerName = customerNameTextField.getText().trim();
         String customerEmail = customerEmailTextFiled.getText().trim();
         String customerPhone = customerPhoneTextFiled.getText().trim();
         String customerAddress = customerAddressTextFiled.getText().trim();
 
-        if (customerName.isEmpty() || customerEmail.isEmpty() || customerPhone.isEmpty()) {
+        if (customerName.isEmpty() || customerEmail.isEmpty() || customerPhone.isEmpty() || customerAddress.isEmpty()) {
             UIHelperC.showAlert(Alert.AlertType.WARNING, "Please fill all fields");
             return;
         }
@@ -133,6 +134,7 @@ public class UpdateCustomerScene {
             UIHelperC.showAlert(Alert.AlertType.WARNING, "Customer email is invalid");
             return;
         }
+
         if (!isValidPhone(customerPhone)) {
             UIHelperC.showAlert(Alert.AlertType.WARNING, "Phone number is invalid");
             return;
@@ -146,6 +148,13 @@ public class UpdateCustomerScene {
         try (Connection con = DBUtil.getConnection()) {
             CustomerDAO dao = new CustomerDAO();
 
+            // ✅ If phone changed, ensure it doesn't exist for another customer
+            if (!customerPhone.equals(selectedCustomer.getCustomerPhone())
+                    && dao.phoneExists(con, customerPhone)) {
+                UIHelperC.showAlert(Alert.AlertType.WARNING, "This phone number already exists!");
+                return;
+            }
+
             boolean updated = dao.updateCustomer(con, selectedCustomer.getCustomerId(),
                     customerName, customerEmail, customerPhone, customerAddress);
 
@@ -156,14 +165,15 @@ public class UpdateCustomerScene {
                 selectedCustomer.setCustomerAddress(customerAddress);
 
                 CustomerView.refreshTable();
-
                 UIHelperC.showAlert(Alert.AlertType.INFORMATION, "Customer Updated");
                 stage.close();
-            }else {
-                UIHelperC.showAlert(Alert.AlertType.ERROR, "update failed");
+            } else {
+                UIHelperC.showAlert(Alert.AlertType.ERROR, "Update failed");
             }
-        }catch (Exception e){
+
+        } catch (Exception e) {
             e.printStackTrace();
+            UIHelperC.showAlert(Alert.AlertType.ERROR, "Database error occurred!");
         }
     }
 
@@ -172,7 +182,7 @@ public class UpdateCustomerScene {
     }
 
     private boolean isValidName(String name) {
-        return name.matches("[a-zA-Z]+");
+        return name.matches("[a-zA-Z]+( [a-zA-Z]+)*");
     }
 
     private boolean isValidPhone(String phone) {

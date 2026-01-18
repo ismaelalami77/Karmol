@@ -41,17 +41,16 @@ import java.util.ArrayList;
 
 public class OrderHistory {
 
-    public static TableView<Order> ordersHistoryTableView;
-    public static ArrayList<Order> ordersArrayList = new ArrayList<>();
-    public static ObservableList<Order> ordersObservableList = FXCollections.observableArrayList();
-
-    private final BorderPane root;
-    private final VBox centerVbox;
-    private final Text titleText;
-
     private static final DeviceRgb BRAND_GREEN = new DeviceRgb(0, 166, 80);
     private static final DeviceRgb LIGHT_GREEN = new DeviceRgb(230, 247, 239); // background
     private static final DeviceRgb ROW_ALT = new DeviceRgb(210, 238, 225);     // zebra rows
+    public static TableView<Order> ordersHistoryTableView;
+    public static ArrayList<Order> ordersArrayList = new ArrayList<>();
+    public static ObservableList<Order> ordersObservableList = FXCollections.observableArrayList();
+    private final BorderPane root;
+    private final VBox centerVbox, leftVBox;
+    private final Text titleText;
+    private TextField searchTextField;
 
 
     public OrderHistory() {
@@ -93,9 +92,38 @@ public class OrderHistory {
         ordersHistoryTableView.setItems(ordersObservableList);
 
         centerVbox.getChildren().addAll(titleText, ordersHistoryTableView);
+
+        leftVBox = new VBox();
+        leftVBox.setAlignment(Pos.CENTER);
+        leftVBox.setSpacing(15);
+        leftVBox.setPadding(new Insets(20));
+
+        searchTextField = UIHelperC.createStyledTextField("Phone number");
+        searchTextField.textProperty().addListener((obs, oldVal, newVal) -> {
+            filterTable(newVal);
+        });
+
+        leftVBox.getChildren().add(searchTextField);
+
         root.setCenter(centerVbox);
+        root.setLeft(leftVBox);
 
         loadAllOrdersFromDB();
+    }
+
+    public static void loadAllOrdersFromDB() {
+        try (Connection con = DBUtil.getConnection()) {
+            OrderDAO dao = new OrderDAO();
+            ordersArrayList = dao.getAllOrders(con);
+            refreshTable();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void refreshTable() {
+        ordersObservableList.clear();
+        ordersObservableList.addAll(ordersArrayList);
     }
 
     private void setupPrintColumn(TableColumn<Order, Void> printCol) {
@@ -116,21 +144,6 @@ public class OrderHistory {
                 setGraphic(empty ? null : btn);
             }
         });
-    }
-
-    public static void loadAllOrdersFromDB() {
-        try (Connection con = DBUtil.getConnection()) {
-            OrderDAO dao = new OrderDAO();
-            ordersArrayList = dao.getAllOrders(con);
-            refreshTable();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public static void refreshTable() {
-        ordersObservableList.clear();
-        ordersObservableList.addAll(ordersArrayList);
     }
 
     public BorderPane getRoot() {
@@ -163,7 +176,8 @@ public class OrderHistory {
                     logo.setHorizontalAlignment(HorizontalAlignment.CENTER);
                     document.add(logo);
                 }
-            } catch (Exception ignored) { }
+            } catch (Exception ignored) {
+            }
 
             // Header
             document.add(new Paragraph("Karmol")
@@ -183,12 +197,12 @@ public class OrderHistory {
             String employeeName = "N/A";
             String customerName = "N/A";
 
-            try(Connection con = DBUtil.getConnection()) {
-                if (con != null){
+            try (Connection con = DBUtil.getConnection()) {
+                if (con != null) {
                     employeeName = getEmployeeName(con, order.getEmployeeId());
                     customerName = getCustomerName(con, order.getCustomerId());
                 }
-            }catch (Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
 
@@ -298,7 +312,6 @@ public class OrderHistory {
     }
 
 
-
     private void addRowToTable(Table table, OrderDAO.OrderDetails od, boolean alternate) {
 
         DeviceRgb bg = alternate ? ROW_ALT : LIGHT_GREEN;
@@ -350,4 +363,46 @@ public class OrderHistory {
         return "N/A";
     }
 
+    private void filterTable(String text) {
+        if (text == null || text.trim().isEmpty()) {
+            loadAllOrdersFromDB();
+            return;
+        }
+
+        String q = text.trim();
+
+        String sql =
+                "SELECT o.id, o.employee_id, o.customer_id, o.order_date, o.total_amount " +
+                        "FROM orders o " +
+                        "JOIN customers c ON c.customer_id = o.customer_id " +
+                        "WHERE c.customer_phone LIKE ? " +
+                        "ORDER BY o.order_date DESC";
+
+        ArrayList<Order> filtered = new ArrayList<>();
+
+        try (Connection con = DBUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, "%" + text.trim() + "%");
+
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Order o = new Order(
+                            rs.getInt("id"),
+                            rs.getInt("employee_id"),
+                            rs.getInt("customer_id"),
+                            rs.getTimestamp("order_date"),
+                            rs.getDouble("total_amount")
+                    );
+                    filtered.add(o);
+                }
+            }
+
+            ordersArrayList = filtered;
+            ordersObservableList.setAll(filtered);
+        } catch (Exception e) {
+            e.printStackTrace();
+            UIHelperC.showAlert(Alert.AlertType.ERROR, "Error");
+        }
+    }
 }

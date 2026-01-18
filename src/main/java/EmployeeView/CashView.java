@@ -21,18 +21,23 @@ import java.sql.Connection;
 import java.util.ArrayList;
 
 public class CashView {
+
     public static TableView<Product> productsTableView;
     public static ArrayList<Product> products = new ArrayList<>();
     public static ObservableList<Product> productsObservableList = FXCollections.observableArrayList();
+
     private static Text totalPriceText;
+
     private BorderPane root;
     private VBox mainCenterVbox, centerVbox, leftVbox, rightVbox;
     private HBox bottomHBox;
+
     private Button deleteOneBtn, deleteBtn, addBtn, payBtn;
     private TextField customerIDTextField;
-    private Text titleText, cashierNameText, customerNameText, orderIDText;
-    private AddProductScene addProductScene = new AddProductScene();
 
+    private Text titleText, orderIDText;
+
+    private AddProductScene addProductScene = new AddProductScene();
     private Customer selectedCustomer = null;
 
     public CashView(User user) {
@@ -61,10 +66,10 @@ public class CashView {
         bottomHBox.setSpacing(15);
         bottomHBox.setPadding(new Insets(15));
 
-
         titleText = UIHelperC.createTitleText("Karmol");
 
-        productsTableView = new TableView();
+        // ================== TABLE ==================
+        productsTableView = new TableView<>();
 
         TableColumn<Product, String> nameCol = new TableColumn<>("Name");
         nameCol.setCellValueFactory(new PropertyValueFactory<>("itemName"));
@@ -86,11 +91,10 @@ public class CashView {
         productsTableView.setPrefHeight(400);
         productsTableView.setItems(productsObservableList);
 
-
         centerVbox.getChildren().addAll(titleText, productsTableView);
         mainCenterVbox.getChildren().add(centerVbox);
 
-
+        // ================== LEFT ==================
         addBtn = UIHelperC.createStyledButton("Add Product");
         addBtn.setOnAction(e -> {
             addProductScene.resetToCategories();
@@ -98,81 +102,99 @@ public class CashView {
         });
 
         customerIDTextField = UIHelperC.createStyledTextField("Customer phone");
-        customerIDTextField.setOnAction(e -> loadCustomerName());
-
 
         payBtn = UIHelperC.createStyledButton("Pay");
         payBtn.setOnAction(e -> payAction(user));
 
         leftVbox.getChildren().addAll(customerIDTextField, addBtn, payBtn);
 
-
-        customerNameText = UIHelperC.createInfoText("Customer: ");
-        cashierNameText = UIHelperC.createInfoText("Cashier: " + user.getUsername());
+        // ================== RIGHT ==================
         orderIDText = UIHelperC.createInfoText("Order #: ");
-        double total = calculateTotal();
-        totalPriceText = UIHelperC.createInfoText("Total Price: " + total);
+        totalPriceText = UIHelperC.createInfoText("Total Price: " + calculateTotal());
 
-        rightVbox.getChildren().addAll(customerNameText, cashierNameText, orderIDText, totalPriceText);
+        rightVbox.getChildren().addAll(orderIDText, totalPriceText);
 
+        // Load order number when screen opens
+        loadNextOrderNumber();
+
+        // ================== BOTTOM ==================
         deleteBtn = UIHelperC.createStyledButton("Delete");
         deleteBtn.setOnAction(e -> deleteAction());
+
         deleteOneBtn = UIHelperC.createStyledButton("Delete One");
         deleteOneBtn.setOnAction(e -> deleteOneAction());
+
         bottomHBox.getChildren().addAll(deleteBtn, deleteOneBtn);
 
-
+        // ================== ROOT ==================
         root.setCenter(mainCenterVbox);
         root.setBottom(bottomHBox);
         root.setLeft(leftVbox);
         root.setRight(rightVbox);
+
+    }
+
+    private void loadNextOrderNumber() {
+        try (Connection con = DBUtil.getConnection()) {
+            OrderDAO dao = new OrderDAO();
+            int nextId = dao.getNextOrderId(con);
+            orderIDText.setText("Order #: " + nextId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            orderIDText.setText("Order #: ");
+        }
     }
 
     private void payAction(User user) {
-        if (products.isEmpty()){
+        if (products.isEmpty()) {
             UIHelperC.showAlert(Alert.AlertType.WARNING, "Receipt is empty");
             return;
         }
 
-        String phone = customerIDTextField.getText().trim();
-        if (phone.isEmpty()){
+        String phone = customerIDTextField.getText();
+        if (phone == null || phone.trim().isEmpty()) {
             UIHelperC.showAlert(Alert.AlertType.WARNING, "Enter Customer phone first");
             return;
         }
+        phone = phone.trim();
 
-        if (selectedCustomer == null || !phone.equals(selectedCustomer.getCustomerPhone())){
-            loadCustomerName();
-        }
+        try (Connection con = DBUtil.getConnection()) {
 
-        if (selectedCustomer == null){
-            UIHelperC.showAlert(Alert.AlertType.WARNING, "Customer not found");
-            return;
-        }
+            // ✅ 1) FETCH customer by phone BEFORE using selectedCustomer
+            CustomerDAO customerDAO = new CustomerDAO();
+            selectedCustomer = customerDAO.getCustomerByPhone(con, phone);
 
-        int customerId = selectedCustomer.getCustomerId();
-        int employeeId = user.getId();
+            // ✅ 2) Null check AFTER fetch
+            if (selectedCustomer == null) {
+                UIHelperC.showAlert(Alert.AlertType.WARNING, "Customer not found");
+                return;
+            }
 
+            int customerId = selectedCustomer.getCustomerId(); // ✅ safe now
+            int employeeId = user.getId();
 
-        try(Connection con = DBUtil.getConnection()){
+            // ✅ 3) Create order + items
             OrderDAO dao = new OrderDAO();
             int newOrderId = dao.createOrderWithItems(con, employeeId, customerId, products);
 
+            // ✅ Reset UI
             products.clear();
             refreshTable();
-
             customerIDTextField.clear();
             selectedCustomer = null;
-            customerNameText.setText("Customer: ");
-            orderIDText.setText("Order #: " + newOrderId);
 
+            loadNextOrderNumber();
             OrderHistory.loadAllOrdersFromDB();
-            UIHelperC.showAlert(Alert.AlertType.INFORMATION, "Payment Successful");
 
-        }catch (Exception e){
+            UIHelperC.showAlert(Alert.AlertType.INFORMATION,
+                    "Payment Successful (Order #" + newOrderId + ")");
+
+        } catch (Exception e) {
             e.printStackTrace();
             UIHelperC.showAlert(Alert.AlertType.ERROR, e.getMessage());
         }
     }
+
 
     public static void refreshTable() {
         productsObservableList.clear();
@@ -184,54 +206,26 @@ public class CashView {
 
     private static double calculateTotal() {
         double total = 0;
-
         for (Product product : products) {
             total += product.getTotalPrice();
         }
-
         return total;
     }
 
-    private void loadCustomerName() {
-        String phoneText = customerIDTextField.getText().trim();
-
-        if (phoneText.isEmpty()) {
-            selectedCustomer = null;
-            customerIDTextField.clear();
-            return;
-        }
-
-        try {
-            int customerPhone = Integer.parseInt(phoneText);
-
-            CustomerDAO customerDAO = new CustomerDAO();
-            selectedCustomer = customerDAO.getCustomerByPhone(customerPhone);
-
-            if (selectedCustomer != null) {
-                customerNameText.setText("Customer: " + selectedCustomer.getCustomerName());
-            } else {
-                customerNameText.setText("Customer: ");
-            }
-        } catch (NumberFormatException e) {
-            UIHelperC.showAlert(Alert.AlertType.WARNING, "Invalid Customer");
-        }
-    }
 
     private void deleteOneAction() {
         Product product = productsTableView.getSelectionModel().getSelectedItem();
-        if (product == null) {
-            return;
-        }
+        if (product == null) return;
 
-        if (product.getQuantity() > 1){
+        if (product.getQuantity() > 1) {
             product.setQuantity(product.getQuantity() - 1);
-        }else {
+        } else {
             products.remove(product);
         }
         refreshTable();
     }
 
-    private void deleteAction(){
+    private void deleteAction() {
         Product product = productsTableView.getSelectionModel().getSelectedItem();
         if (product != null) {
             products.remove(product);

@@ -53,10 +53,13 @@ public class AddCustomerScene {
 
         customerNameText = UIHelperC.createInfoText("Name:");
         customerNameTextField = UIHelperC.createStyledTextField("Name");
+
         customerEmailText = UIHelperC.createInfoText("Email:");
         customerEmailTextFiled = UIHelperC.createStyledTextField("Email");
+
         customerPhoneText = UIHelperC.createInfoText("Phone:");
         customerPhoneTextFiled = UIHelperC.createStyledTextField("Phone");
+
         customerAddressText = UIHelperC.createInfoText("Address:");
         customerAddressTextFiled = UIHelperC.createStyledTextField("Address");
 
@@ -71,7 +74,6 @@ public class AddCustomerScene {
 
         grid.add(customerAddressText, 0, 3);
         grid.add(customerAddressTextFiled, 1, 3);
-
 
         buttonsHbox = new HBox();
         buttonsHbox.setAlignment(Pos.CENTER);
@@ -90,13 +92,13 @@ public class AddCustomerScene {
         stage.setScene(scene);
         stage.setTitle("Add Customer");
 
-
         cancelButton.setOnAction(e -> stage.close());
         addCustomerButton.setOnAction(e -> addCustomer());
 
         customerNameTextField.setOnAction(e -> customerEmailTextFiled.requestFocus());
         customerEmailTextFiled.setOnAction(e -> customerPhoneTextFiled.requestFocus());
         customerPhoneTextFiled.setOnAction(e -> customerAddressTextFiled.requestFocus());
+        customerAddressTextFiled.setOnAction(e -> addCustomer());
     }
 
     private void addCustomer() {
@@ -145,6 +147,13 @@ public class AddCustomerScene {
 
         try (Connection con = DBUtil.getConnection()) {
             CustomerDAO dao = new CustomerDAO();
+
+            // ✅ Prevent duplicate phone BEFORE insert
+            if (dao.phoneExists(con, phone)) {
+                UIHelperC.showAlert(Alert.AlertType.WARNING, "This phone number already exists!");
+                return;
+            }
+
             int newID = dao.insertCustomer(con, newCustomer);
 
             if (newID != -1) {
@@ -157,10 +166,12 @@ public class AddCustomerScene {
                 ));
                 CustomerView.refreshTable();
                 UIHelperC.showAlert(Alert.AlertType.INFORMATION, "Customer added successfully!");
+                clearFields();
                 stage.close();
             } else {
                 UIHelperC.showAlert(Alert.AlertType.ERROR, "Customer could not be inserted!");
             }
+
         } catch (Exception e) {
             e.printStackTrace();
             UIHelperC.showAlert(Alert.AlertType.ERROR, "Database error occurred!");
@@ -172,7 +183,7 @@ public class AddCustomerScene {
     }
 
     private boolean isValidName(String name) {
-        return name.matches("[a-zA-Z]+");
+        return name.matches("[a-zA-Z]+( [a-zA-Z]+)*");
     }
 
     private boolean isValidPhone(String phone) {
@@ -185,5 +196,12 @@ public class AddCustomerScene {
 
     private boolean isValidAddress(String address) {
         return address.matches("[A-Za-z0-9 ,.]+");
+    }
+
+    private void clearFields(){
+        customerNameTextField.clear();
+        customerEmailTextFiled.clear();
+        customerPhoneTextFiled.clear();
+        customerAddressTextFiled.clear();
     }
 }

@@ -6,11 +6,12 @@ import java.sql.*;
 import java.util.ArrayList;
 
 public class CustomerDAO {
+
     public ArrayList<Customer> getAllCustomers(Connection con) {
         ArrayList<Customer> customers = new ArrayList<>();
 
         String sql = "SELECT customer_id, customer_name, customer_email, customer_phone, customer_address " +
-                "FROM customers Order By customer_id";
+                "FROM customers ORDER BY customer_id";
 
         try (PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
@@ -27,20 +28,22 @@ public class CustomerDAO {
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return customers;
 
+        return customers;
     }
 
     public int getNextCustomerID(Connection con) {
-        String sql = "SELECT COALESCE(Max(customer_id),0) + 1 AS next_id from customers";
+        String sql = "SELECT COALESCE(MAX(customer_id), 0) + 1 AS next_id FROM customers";
+
         try (PreparedStatement ps = con.prepareStatement(sql);
              ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                return rs.getInt("next_id");
-            }
+
+            if (rs.next()) return rs.getInt("next_id");
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return 1;
     }
 
@@ -60,6 +63,7 @@ public class CustomerDAO {
             try (ResultSet keys = ps.getGeneratedKeys()) {
                 if (keys.next()) return keys.getInt(1);
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -67,57 +71,63 @@ public class CustomerDAO {
         return -1;
     }
 
-    public Customer getCustomerById(int id) {
+    public Customer getCustomerById(Connection con, int id) {
         String sql = "SELECT * FROM customers WHERE customer_id = ?";
-        try (Connection con = DBUtil.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
 
-            if (rs.next()){
-                return new Customer(
-                        rs.getInt("customer_id"),
-                        rs.getString("customer_name"),
-                        rs.getString("customer_email"),
-                        rs.getString("customer_phone"),
-                        rs.getString("customer_address")
-                );
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, id);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Customer(
+                            rs.getInt("customer_id"),
+                            rs.getString("customer_name"),
+                            rs.getString("customer_email"),
+                            rs.getString("customer_phone"),
+                            rs.getString("customer_address")
+                    );
+                }
             }
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return null;
     }
 
-    public Customer getCustomerByPhone(int id) {
+    // ✅ FIXED: phone is String, not int, and no new Connection created here
+    public Customer getCustomerByPhone(Connection con, String phone) {
         String sql = "SELECT * FROM customers WHERE customer_phone = ?";
-        try (Connection con = DBUtil.getConnection();
-             PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            ResultSet rs = ps.executeQuery();
 
-            if (rs.next()){
-                return new Customer(
-                        rs.getInt("customer_id"),
-                        rs.getString("customer_name"),
-                        rs.getString("customer_email"),
-                        rs.getString("customer_phone"),
-                        rs.getString("customer_address")
-                );
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, phone);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Customer(
+                            rs.getInt("customer_id"),
+                            rs.getString("customer_name"),
+                            rs.getString("customer_email"),
+                            rs.getString("customer_phone"),
+                            rs.getString("customer_address")
+                    );
+                }
             }
-        }catch (SQLException e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
+
         return null;
     }
 
     public boolean deleteCustomerByID(Connection con, int customerId) {
         String sql = "DELETE FROM customers WHERE customer_id = ?";
 
-        try(PreparedStatement ps = con.prepareStatement(sql)){
-            ps.setInt(1,customerId);
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setInt(1, customerId);
             return ps.executeUpdate() > 0;
-        }catch (SQLException e) {
+
+        } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
@@ -137,10 +147,39 @@ public class CustomerDAO {
             ps.setInt(5, customerId);
 
             return ps.executeUpdate() > 0;
-        } catch (Exception e) {
+
+        } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
+    }
+
+    public boolean phoneExists(Connection con, String phone) throws SQLException {
+        String sql = "SELECT 1 FROM customers WHERE customer_phone = ? LIMIT 1";
+
+        try (PreparedStatement ps = con.prepareStatement(sql)) {
+            ps.setString(1, phone);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+        }
+    }
+
+    public int getTotalCustomers() {
+        String sql = "SELECT COUNT(*) AS total FROM customers";
+
+        try (Connection con = DBUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) return rs.getInt("total");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return 0;
     }
 
 }

@@ -128,5 +128,42 @@ public class EmployeeDAO {
     }
 
 
+    public int getTotalEmployees() {
+        String sql = "SELECT COUNT(*) AS total FROM users WHERE role = 'EMPLOYEE'";
 
+        try (Connection con = DBUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) return rs.getInt("total");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
+
+    public String getTopEmployee() {
+        String sql =
+                "SELECT u.username AS employee_name, SUM(o.total_amount) AS revenue " +
+                        "FROM orders o " +
+                        "JOIN users u ON u.id = o.employee_id " +
+                        "GROUP BY u.id, u.username " +
+                        "ORDER BY revenue DESC " +
+                        "LIMIT 1";
+
+        try (Connection con = DBUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) return rs.getString("employee_name");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "N/A";
+    }
 }

@@ -57,6 +57,7 @@ public class ShowCategories {
         cancelButton = UIHelperC.createStyledButton("Cancel");
         cancelButton.setOnAction(e -> onCancel.run());
 
+
         centerVbox.getChildren().addAll(titleText, scrollPane, cancelButton);
         root.setCenter(centerVbox);
 

@@ -92,4 +92,29 @@ public class CategoryDAO {
         // 2) create new
         return insertCategory(con, name);
     }
+
+    public String getTopCategory() {
+        String sql =
+                "SELECT COALESCE(c.name, 'Uncategorized') AS category_name, " +
+                        "       SUM(oi.line_total) AS revenue " +
+                        "FROM order_items oi " +
+                        "JOIN products p ON p.id = oi.product_id " +
+                        "LEFT JOIN categories c ON c.id = p.category_id " +
+                        "GROUP BY COALESCE(c.name, 'Uncategorized') " +
+                        "ORDER BY revenue DESC " +
+                        "LIMIT 1";
+
+        try (Connection con = DBUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) return rs.getString("category_name");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "N/A";
+    }
+
 }

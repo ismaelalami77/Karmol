@@ -60,3 +60,17 @@
 .table-row-cell:selected .table-cell {
     -fx-text-fill: white;
 }
+
+.statistics-square {
+    -fx-background-color: #009144;
+    -fx-background-radius: 15px;
+    -fx-padding: 20px;
+    -fx-pref-width: 400px;
+    -fx-pref-height: 100px;
+    -fx-alignment: center;      /* Centers the text block within the Label's bounds */
+    -fx-text-alignment: center; /* Centers lines of text relative to each other */
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 10, 0.25, 0, 2);
+}

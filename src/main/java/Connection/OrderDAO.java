@@ -10,33 +10,6 @@ import java.util.ArrayList;
 
 public class OrderDAO {
 
-    // DTO for printing (stored inside your LinkedList)
-    public static class OrderDetails {
-        private final int productId;
-        private final String productName;
-        private final String categoryName;
-        private final int quantity;
-        private final double unitPrice;
-        private final double lineTotal;
-
-        public OrderDetails(int productId, String productName, String categoryName,
-                            int quantity, double unitPrice, double lineTotal) {
-            this.productId = productId;
-            this.productName = productName;
-            this.categoryName = categoryName;
-            this.quantity = quantity;
-            this.unitPrice = unitPrice;
-            this.lineTotal = lineTotal;
-        }
-
-        public int getProductId() { return productId; }
-        public String getProductName() { return productName; }
-        public String getCategoryName() { return categoryName; }
-        public int getQuantity() { return quantity; }
-        public double getUnitPrice() { return unitPrice; }
-        public double getLineTotal() { return lineTotal; }
-    }
-
     public int createOrderWithItems(Connection con, int employeeId, int customerId, ArrayList<Product> items) throws Exception {
         String insertOrderSql =
                 "INSERT INTO orders (employee_id, customer_id, order_date, total_amount) VALUES (?, ?, NOW(), ?)";
@@ -112,7 +85,6 @@ public class OrderDAO {
             if (stockPS != null) stockPS.close();
         }
     }
-
 
     public ArrayList<Order> getAllOrders(Connection con) throws SQLException {
         ArrayList<Order> list = new ArrayList<>();
@@ -254,6 +226,146 @@ public class OrderDAO {
             if (cols.contains(c.toLowerCase())) return c;
         }
         return null;
+    }
+
+    public int getNextOrderId(Connection con) throws SQLException {
+        String sql = "SELECT COALESCE(MAX(id), 0) + 1 AS next_id FROM orders";
+        try (PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) return rs.getInt("next_id");
+        }
+        return 1;
+    }
+
+    public LinkedList getRevenuePerEmployee(Connection con) throws SQLException {
+        LinkedList revenuePerEmployeeList = new LinkedList();
+        String sql =
+                "SELECT u.username AS employee_name, SUM(o.total_amount) AS revenue " +
+                        "FROM orders o " +
+                        "JOIN users u ON u.id = o.employee_id " +
+                        "GROUP BY u.username " +
+                        "ORDER BY revenue DESC";
+
+        try (PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                String name = rs.getString("employee_name");
+                String revenue = String.valueOf(rs.getDouble("revenue"));
+
+                revenuePerEmployeeList.addLast(new String[]{name, revenue});
+            }
+        }
+        return revenuePerEmployeeList;
+    }
+
+    public LinkedList getCategoryRevenue(Connection con) throws SQLException {
+        LinkedList categoryRevenueList = new LinkedList();
+
+        String sql =
+                "SELECT COALESCE(c.name, 'Uncategorized') AS category_name, " +
+                        "       SUM(oi.line_total) AS total_revenue " +
+                        "FROM order_items oi " +
+                        "JOIN products p ON p.id = oi.product_id " +
+                        "LEFT JOIN categories c ON c.id = p.category_id " +
+                        "GROUP BY COALESCE(c.name, 'Uncategorized') " +
+                        "ORDER BY total_revenue DESC";
+
+        try (PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                String categoryName = rs.getString("category_name");
+                double totalRevenue = rs.getDouble("total_revenue");
+
+                categoryRevenueList.addLast(new String[]{categoryName, String.valueOf(totalRevenue)});
+            }
+        }
+
+        return categoryRevenueList;
+    }
+
+    public double getTotalRevenue() {
+        String sql = "SELECT COALESCE(SUM(total_amount), 0) AS total_revenue FROM orders";
+
+        try (Connection con = DBUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) return rs.getDouble("total_revenue");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return 0.0;
+    }
+
+    public String getTopClient() {
+        String sql =
+                "SELECT c.customer_name AS customer_name, SUM(o.total_amount) AS revenue " +
+                        "FROM orders o " +
+                        "JOIN customers c ON c.customer_id = o.customer_id " +
+                        "GROUP BY c.customer_id, c.customer_name " +
+                        "ORDER BY revenue DESC " +
+                        "LIMIT 1";
+
+        try (Connection con = DBUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+
+            if (rs.next()) return rs.getString("customer_name");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return "N/A";
+    }
+
+
+
+    public static class OrderDetails {
+        private final int productId;
+        private final String productName;
+        private final String categoryName;
+        private final int quantity;
+        private final double unitPrice;
+        private final double lineTotal;
+
+        public OrderDetails(int productId, String productName, String categoryName,
+                            int quantity, double unitPrice, double lineTotal) {
+            this.productId = productId;
+            this.productName = productName;
+            this.categoryName = categoryName;
+            this.quantity = quantity;
+            this.unitPrice = unitPrice;
+            this.lineTotal = lineTotal;
+        }
+
+        public int getProductId() {
+            return productId;
+        }
+
+        public String getProductName() {
+            return productName;
+        }
+
+        public String getCategoryName() {
+            return categoryName;
+        }
+
+        public int getQuantity() {
+            return quantity;
+        }
+
+        public double getUnitPrice() {
+            return unitPrice;
+        }
+
+        public double getLineTotal() {
+            return lineTotal;
+        }
     }
 
 }

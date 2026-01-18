@@ -142,5 +142,22 @@ public class ProductDAO {
     }
 
 
+    public String getTopProduct() {
+        String sql =
+                "SELECT p.productName AS product_name, SUM(oi.line_total) AS revenue " +
+                        "FROM order_items oi " +
+                        "JOIN products p ON p.id = oi.product_id " +
+                        "GROUP BY p.id, p.productName " +
+                        "ORDER BY revenue DESC " +
+                        "LIMIT 1";
 
+        try(Connection con = DBUtil.getConnection();
+        PreparedStatement ps = con.prepareStatement(sql);
+        ResultSet rs = ps.executeQuery()){
+            if (rs.next()) return rs.getString("product_name");
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "N/A";
+    }
 }

@@ -1,7 +1,5 @@
 package com.example.comp333finalproj;
 
-
-
 import javafx.scene.control.*;
 import javafx.scene.text.Text;
 

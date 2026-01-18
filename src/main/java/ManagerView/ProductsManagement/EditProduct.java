@@ -153,6 +153,7 @@ public class EditProduct {
 
         if (qty < 0){
             UIHelperC.showAlert(Alert.AlertType.ERROR, "Quantity must be greater than 0");
+            return;
         }
 
         try(Connection con = DBUtil.getConnection()){

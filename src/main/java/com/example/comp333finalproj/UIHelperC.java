@@ -1,5 +1,6 @@
 package com.example.comp333finalproj;
 
+import javafx.scene.Cursor;
 import javafx.scene.control.*;
 import javafx.scene.text.Text;
 
@@ -60,8 +61,14 @@ public class UIHelperC {
                 "-fx-padding: 0;";
 
         button.setStyle(style);
-        button.setOnMouseEntered(e -> button.setStyle(hoverStyle));
-        button.setOnMouseExited(e -> button.setStyle(style));
+        button.setOnMouseEntered(e -> {
+            button.setCursor(Cursor.HAND);
+            button.setStyle(hoverStyle);
+        });
+        button.setOnMouseExited(e -> {
+            button.setCursor(Cursor.DEFAULT);
+            button.setStyle(style);
+        });
 
         return button;
     }
@@ -130,4 +137,48 @@ public class UIHelperC {
 
         return comboBox;
     }
+
+    public static Button createMenuButton(String text) {
+        Button btn = new Button(text);
+
+        btn.setPrefHeight(40);
+        btn.setPrefWidth(160);
+
+        // Default style (no background)
+        btn.setStyle("""
+                -fx-background-color: transparent;
+                -fx-text-fill: #00a650;
+                -fx-font-size: 20px;
+                -fx-font-weight: 800;
+                -fx-padding: 0 10 0 10;
+                """);
+
+        // Hover effect
+        btn.setOnMouseEntered(e -> {
+            btn.setCursor(Cursor.HAND);
+            btn.setStyle("""
+                    -fx-background-color: transparent;
+                    -fx-text-fill: #009144;
+                    -fx-font-size: 20px;
+                    -fx-font-weight: 800;
+                    """);
+        });
+
+
+        btn.setOnMouseExited(e -> {
+                    btn.setCursor(Cursor.HAND);
+                    btn.setStyle("""
+                            
+                                    -fx-background-color: transparent;
+                            -fx-text-fill: #00a650;
+                            -fx-font-size: 20px;
+                            -fx-font-weight: 800;
+                            """);
+                }
+        );
+
+
+        return btn;
+    }
+
 }

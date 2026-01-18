@@ -1,10 +1,6 @@
 package ManagerView.EmployeeManagement;
 
 import Connection.EmployeeDAO;
-import Connection.DBUtil;
-
-import EmployeeView.Customer;
-import Product.Product;
 import com.example.comp333finalproj.UIHelperC;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -16,7 +12,6 @@ import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
-import java.sql.Connection;
 import java.util.ArrayList;
 
 
