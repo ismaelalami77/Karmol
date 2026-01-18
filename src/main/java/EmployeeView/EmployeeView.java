@@ -1,5 +1,8 @@
 package EmployeeView;
 
+import EmployeeView.Cash.CashView;
+import EmployeeView.Customer.CustomerView;
+import EmployeeView.Orders.OrderHistory;
 import Login.Login;
 import Login.User;
 import com.example.comp333finalproj.UIHelperC;

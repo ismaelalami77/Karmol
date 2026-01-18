@@ -1,4 +1,4 @@
-package EmployeeView;
+package EmployeeView.Cash;
 
 import Connection.DBUtil;
 import Connection.CategoryDAO;

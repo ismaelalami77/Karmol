@@ -1,5 +1,5 @@
 // ========================= OrderHistory.java =========================
-package EmployeeView;
+package EmployeeView.Orders;
 
 import Connection.DBUtil;
 import Connection.OrderDAO;

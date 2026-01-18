@@ -1,4 +1,4 @@
-package EmployeeView;
+package EmployeeView.Cash;
 
 import Product.Category;
 import javafx.scene.Scene;

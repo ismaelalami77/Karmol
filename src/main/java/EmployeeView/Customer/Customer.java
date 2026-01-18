@@ -1,4 +1,4 @@
-package EmployeeView;
+package EmployeeView.Customer;
 
 public class Customer {
     private int customerId;

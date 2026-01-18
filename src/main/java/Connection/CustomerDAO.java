@@ -1,6 +1,6 @@
 package Connection;
 
-import EmployeeView.Customer;
+import EmployeeView.Customer.Customer;
 
 import java.sql.*;
 import java.util.ArrayList;

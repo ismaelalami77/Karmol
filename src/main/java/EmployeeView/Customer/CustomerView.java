@@ -1,4 +1,4 @@
-package EmployeeView;
+package EmployeeView.Customer;
 
 import com.example.comp333finalproj.UIHelperC;
 import javafx.collections.FXCollections;

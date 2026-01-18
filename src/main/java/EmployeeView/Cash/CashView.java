@@ -1,8 +1,10 @@
-package EmployeeView;
+package EmployeeView.Cash;
 
 import Connection.CustomerDAO;
 import Connection.OrderDAO;
 import Connection.DBUtil;
+import EmployeeView.Customer.Customer;
+import EmployeeView.Orders.OrderHistory;
 import Login.User;
 import Product.Product;
 import com.example.comp333finalproj.UIHelperC;

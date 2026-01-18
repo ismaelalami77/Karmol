@@ -2,7 +2,7 @@
 package Connection;
 
 import DataStructure.LinkedList;
-import EmployeeView.Order;
+import EmployeeView.Orders.Order;
 import Product.Product;
 
 import java.sql.*;

@@ -17,7 +17,9 @@ module com.example.comp333finalproj {
 
 
     exports com.example.comp333finalproj;
-
+    opens EmployeeView.Customer to javafx.base, javafx.fxml;
+    opens EmployeeView.Orders to javafx.base, javafx.fxml;
+    opens EmployeeView.Cash to javafx.base, javafx.fxml;
 
 
 }

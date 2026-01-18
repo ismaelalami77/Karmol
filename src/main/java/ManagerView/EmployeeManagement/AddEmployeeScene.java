@@ -2,7 +2,6 @@ package ManagerView.EmployeeManagement;
 
 import Connection.DBUtil;
 import Connection.EmployeeDAO;
-import EmployeeView.CustomerView;
 import com.example.comp333finalproj.UIHelperC;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

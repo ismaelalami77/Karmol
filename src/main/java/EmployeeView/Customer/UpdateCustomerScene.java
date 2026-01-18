@@ -1,4 +1,4 @@
-package EmployeeView;
+package EmployeeView.Customer;
 
 import com.example.comp333finalproj.UIHelperC;
 import javafx.geometry.Insets;
@@ -19,7 +19,8 @@ import Connection.CustomerDAO;
 
 import java.sql.Connection;
 
-public class AddCustomerScene {
+public class UpdateCustomerScene {
+    private final CustomerView customerView;
     private Stage stage;
     private Scene scene;
     private BorderPane root;
@@ -27,15 +28,16 @@ public class AddCustomerScene {
     private HBox buttonsHbox;
     private VBox centerVbox;
 
-    private Text addCustomerText, customerNameText,
+    private Text updateCustomerText, customerNameText,
             customerEmailText, customerPhoneText, customerAddressText;
+
     private TextField customerNameTextField,
             customerEmailTextFiled, customerPhoneTextFiled, customerAddressTextFiled;
-    private Button addCustomerButton, cancelButton;
 
-    private final CustomerView customerView;
+    private Button updateCustomerButton, cancelButton;
+    private Customer selectedCustomer;
 
-    public AddCustomerScene(CustomerView customerView) {
+    public UpdateCustomerScene(CustomerView customerView) {
         this.customerView = customerView;
 
         root = new BorderPane();
@@ -44,7 +46,7 @@ public class AddCustomerScene {
         centerVbox.setAlignment(Pos.CENTER);
         centerVbox.setSpacing(15);
 
-        addCustomerText = UIHelperC.createTitleText("Add Customer");
+        updateCustomerText = UIHelperC.createTitleText("Update Customer");
 
         grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
@@ -80,96 +82,93 @@ public class AddCustomerScene {
         buttonsHbox.setSpacing(15);
         buttonsHbox.setPadding(new Insets(20));
 
-        addCustomerButton = UIHelperC.createStyledButton("Add");
+        updateCustomerButton = UIHelperC.createStyledButton("Update");
         cancelButton = UIHelperC.createStyledButton("Cancel");
-        buttonsHbox.getChildren().addAll(addCustomerButton, cancelButton);
+        buttonsHbox.getChildren().addAll(updateCustomerButton, cancelButton);
 
-        centerVbox.getChildren().addAll(addCustomerText, grid, buttonsHbox);
+        centerVbox.getChildren().addAll(updateCustomerText, grid, buttonsHbox);
 
         root.setCenter(centerVbox);
         stage = new Stage();
         scene = new Scene(root, 650, 500);
         stage.setScene(scene);
-        stage.setTitle("Add Customer");
+        stage.setTitle("Update Customer");
 
         cancelButton.setOnAction(e -> stage.close());
-        addCustomerButton.setOnAction(e -> addCustomer());
+        updateCustomerButton.setOnAction(e -> updateCustomer());
 
         customerNameTextField.setOnAction(e -> customerEmailTextFiled.requestFocus());
         customerEmailTextFiled.setOnAction(e -> customerPhoneTextFiled.requestFocus());
         customerPhoneTextFiled.setOnAction(e -> customerAddressTextFiled.requestFocus());
-        customerAddressTextFiled.setOnAction(e -> addCustomer());
+        customerAddressTextFiled.setOnAction(e -> updateCustomer());
     }
 
-    private void addCustomer() {
-        String name = customerNameTextField.getText().trim();
-        String email = customerEmailTextFiled.getText().trim();
-        String phone = customerPhoneTextFiled.getText().trim();
-        String address = customerAddressTextFiled.getText().trim();
+    public void setCustomer(Customer customer) {
+        this.selectedCustomer = customer;
 
-        if (name.isEmpty()) {
-            UIHelperC.showAlert(Alert.AlertType.WARNING, "Please enter a name!");
-            return;
-        }
-        if (!isValidName(name)) {
-            UIHelperC.showAlert(Alert.AlertType.WARNING, "Name must contain letters only!");
-            return;
-        }
+        customerNameTextField.setText(customer.getCustomerName());
+        customerEmailTextFiled.setText(customer.getCustomerEmail());
+        customerPhoneTextFiled.setText(customer.getCustomerPhone());
+        customerAddressTextFiled.setText(customer.getCustomerAddress());
+    }
 
-        if (email.isEmpty()) {
-            UIHelperC.showAlert(Alert.AlertType.WARNING, "Please enter an email!");
-            return;
-        }
-        if (!isValidEmail(email)) {
-            UIHelperC.showAlert(Alert.AlertType.WARNING, "Invalid email format!");
+    private void updateCustomer() {
+        if (selectedCustomer == null) return;
+
+        String customerName = customerNameTextField.getText().trim();
+        String customerEmail = customerEmailTextFiled.getText().trim();
+        String customerPhone = customerPhoneTextFiled.getText().trim();
+        String customerAddress = customerAddressTextFiled.getText().trim();
+
+        if (customerName.isEmpty() || customerEmail.isEmpty() || customerPhone.isEmpty() || customerAddress.isEmpty()) {
+            UIHelperC.showAlert(Alert.AlertType.WARNING, "Please fill all fields");
             return;
         }
 
-        if (phone.isEmpty()) {
-            UIHelperC.showAlert(Alert.AlertType.WARNING, "Please enter a phone number!");
-            return;
-        }
-        if (!isValidPhone(phone)) {
-            UIHelperC.showAlert(Alert.AlertType.WARNING, "Phone must be exactly 10 digits!");
+        if (!isValidName(customerName)) {
+            UIHelperC.showAlert(Alert.AlertType.WARNING, "Customer name is invalid");
             return;
         }
 
-        if (address.isEmpty()) {
-            UIHelperC.showAlert(Alert.AlertType.WARNING, "Please enter an address!");
-            return;
-        }
-        if (!isValidAddress(address)) {
-            UIHelperC.showAlert(Alert.AlertType.WARNING, "Address contains invalid characters!");
+        if (!isValidEmail(customerEmail)) {
+            UIHelperC.showAlert(Alert.AlertType.WARNING, "Customer email is invalid");
             return;
         }
 
-        Customer newCustomer = new Customer(0, name, email, phone, address);
+        if (!isValidPhone(customerPhone)) {
+            UIHelperC.showAlert(Alert.AlertType.WARNING, "Phone number is invalid");
+            return;
+        }
+
+        if (!isValidAddress(customerAddress)) {
+            UIHelperC.showAlert(Alert.AlertType.WARNING, "Customer address is invalid");
+            return;
+        }
 
         try (Connection con = DBUtil.getConnection()) {
             CustomerDAO dao = new CustomerDAO();
 
-            // ✅ Prevent duplicate phone BEFORE insert
-            if (dao.phoneExists(con, phone)) {
+            // ✅ If phone changed, ensure it doesn't exist for another customer
+            if (!customerPhone.equals(selectedCustomer.getCustomerPhone())
+                    && dao.phoneExists(con, customerPhone)) {
                 UIHelperC.showAlert(Alert.AlertType.WARNING, "This phone number already exists!");
                 return;
             }
 
-            int newID = dao.insertCustomer(con, newCustomer);
+            boolean updated = dao.updateCustomer(con, selectedCustomer.getCustomerId(),
+                    customerName, customerEmail, customerPhone, customerAddress);
 
-            if (newID != -1) {
-                CustomerView.customers.add(new Customer(
-                        newID,
-                        newCustomer.getCustomerName(),
-                        newCustomer.getCustomerEmail(),
-                        newCustomer.getCustomerPhone(),
-                        newCustomer.getCustomerAddress()
-                ));
+            if (updated) {
+                selectedCustomer.setCustomerName(customerName);
+                selectedCustomer.setCustomerEmail(customerEmail);
+                selectedCustomer.setCustomerPhone(customerPhone);
+                selectedCustomer.setCustomerAddress(customerAddress);
+
                 CustomerView.refreshTable();
-                UIHelperC.showAlert(Alert.AlertType.INFORMATION, "Customer added successfully!");
-                clearFields();
+                UIHelperC.showAlert(Alert.AlertType.INFORMATION, "Customer Updated");
                 stage.close();
             } else {
-                UIHelperC.showAlert(Alert.AlertType.ERROR, "Customer could not be inserted!");
+                UIHelperC.showAlert(Alert.AlertType.ERROR, "Update failed");
             }
 
         } catch (Exception e) {
@@ -196,12 +195,5 @@ public class AddCustomerScene {
 
     private boolean isValidAddress(String address) {
         return address.matches("[A-Za-z0-9 ,.]+");
-    }
-
-    private void clearFields(){
-        customerNameTextField.clear();
-        customerEmailTextFiled.clear();
-        customerPhoneTextFiled.clear();
-        customerAddressTextFiled.clear();
     }
 }
