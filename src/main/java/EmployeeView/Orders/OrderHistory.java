@@ -256,8 +256,8 @@ public class OrderHistory {
                 addHeader(itemsTable, "Item Name");
                 addHeader(itemsTable, "Category");
                 addHeader(itemsTable, "Qty");
-                addHeader(itemsTable, "Unit");
-                addHeader(itemsTable, "Line Total");
+                addHeader(itemsTable, "Unit Price");
+                addHeader(itemsTable, "Total");
 
                 boolean alternate = false;
                 Node current = orderDetailsList.getFront();

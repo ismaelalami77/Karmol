@@ -123,20 +123,21 @@ public class ViewProducts {
             return;
         }
 
-        String q = text.trim().toLowerCase();
-        ArrayList<Product> filtered = new ArrayList<>();
+        String q = text.toLowerCase().trim();
 
-        for (Product p : products) {
-            String n = p.getItemName() == null ? "" : p.getItemName().toLowerCase();
-            String c = p.getCategoryName() == null ? "" : p.getCategoryName().toLowerCase();
-
-            if (n.contains(q) || c.contains(q)) {
-                filtered.add(p);
-            }
-        }
-
-        productsObservableList.setAll(filtered);
+        productsObservableList.setAll(
+                products.stream()
+                        .filter(p ->
+                                (p.getItemName() != null &&
+                                        p.getItemName().toLowerCase().contains(q))
+                                        ||
+                                        (p.getCategoryName() != null &&
+                                                p.getCategoryName().toLowerCase().contains(q))
+                        )
+                        .toList()
+        );
     }
+
 
     private void editAction() {
         Product selected = productsTableView.getSelectionModel().getSelectedItem();
