@@ -45,22 +45,32 @@ It supports **sales processing, inventory management, customer tracking, employe
 
 ---
 
+## 📸 Screenshots
+
+### 🔐 Login Screen
 ![Login](images/Login.png)
 
+### 💵 Cashier POS Screen
 ![Cash](images/Cash.png)
 
+### 👥 Customer Management
 ![Manage Customers](images/ManageCustomers.png)
 
+### 🧾 Order History
 ![Order History](images/OrderHistory.png)
 
+### 🧾 Bill / Invoice
 ![Bill](images/Bill.png)
 
+### 📊 Manager Dashboard
 ![Dashboard](images/Dashboard.png)
 
+### 👥 Employee Management
 ![Manage Employees](images/ManageEmployees.png)
 
 ![Add Employee](images/AddEmployees.png)
 
+### 📦 Product Management
 ![Manage Products](images/ManageProducts.png)
 
 ![Add Shipment](images/AddShipment.png)
