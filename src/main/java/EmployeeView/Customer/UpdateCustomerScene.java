@@ -148,7 +148,6 @@ public class UpdateCustomerScene {
         try (Connection con = DBUtil.getConnection()) {
             CustomerDAO dao = new CustomerDAO();
 
-            // ✅ If phone changed, ensure it doesn't exist for another customer
             if (!customerPhone.equals(selectedCustomer.getCustomerPhone())
                     && dao.phoneExists(con, customerPhone)) {
                 UIHelperC.showAlert(Alert.AlertType.WARNING, "This phone number already exists!");

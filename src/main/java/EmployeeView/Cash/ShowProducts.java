@@ -108,10 +108,10 @@ public class ShowProducts {
 
     private void addToCashTable(Product selectedProduct) {
 
-        // selectedProduct.getQuantity() here MUST be the DB stock quantity
+
         int stockQty = selectedProduct.getQuantity();
 
-        // how many already in cart?
+
         int inCartQty = 0;
         for (Product p : CashView.products) {
             if (p.getId() == selectedProduct.getId()) {
@@ -120,7 +120,7 @@ public class ShowProducts {
             }
         }
 
-        // block if cart reached stock
+
         if (inCartQty >= stockQty) {
             UIHelperC.showAlert(Alert.AlertType.WARNING,
                     "Not enough stock! Available: " + stockQty);
@@ -128,7 +128,7 @@ public class ShowProducts {
             return;
         }
 
-        // add/increase in cart
+
         for (Product product : CashView.products) {
             if (product.getId() == selectedProduct.getId()) {
                 product.setQuantity(product.getQuantity() + 1);

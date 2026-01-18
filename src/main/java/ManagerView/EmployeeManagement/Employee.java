@@ -10,10 +10,10 @@ public class Employee {
     private String phoneNumber;
     private String address;
 
-    // ✅ Empty constructor (REQUIRED for JavaFX & JDBC)
+
     public Employee() {}
 
-    // ✅ Full constructor (used when loading from DB)
+
     public Employee(int employeeId,
                     String firstName,
                     String lastName,
@@ -31,7 +31,7 @@ public class Employee {
         this.address = address;
     }
 
-    // ✅ Getters & Setters (REQUIRED for TableView)
+
 
     public int getEmployeeId() {
         return employeeId;
@@ -69,7 +69,7 @@ public class Employee {
         return password;
     }
 
-    // ⚠️ You may hide this column later
+
     public void setPassword(String password) {
         this.password = password;
     }
@@ -90,7 +90,7 @@ public class Employee {
         this.address = address;
     }
 
-    // ✅ Optional helper
+
     public String getFullName() {
         return firstName + " " + lastName;
     }

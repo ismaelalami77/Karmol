@@ -127,7 +127,7 @@ public class AddEmployeeScene {
         String address   = employeeAddressTextField.getText().trim();
         String password  = employeePasswordField.getText().trim();
 
-        // Validation (same style)
+
         if (firstName.isEmpty()) {
             UIHelperC.showAlert(Alert.AlertType.WARNING, "Please enter first name!");
             return;
@@ -195,12 +195,12 @@ public class AddEmployeeScene {
 
         try (Connection con = DBUtil.getConnection()) {
 
-            // insert and get generated id
+
             int newID = EmployeeDAO.insertEmployee(con, newEmployee);
 
             if (newID != -1) {
 
-                // add to table list (like you did in customers)
+
                 viewEmployees.employees.add(new Employee(
                         newID,
                         newEmployee.getFirstName(),

@@ -1,4 +1,3 @@
-// ========================= OrderDAO.java =========================
 package Connection;
 
 import DataStructure.LinkedList;
@@ -31,7 +30,7 @@ public class OrderDAO {
             double totalAmount = 0;
             for (Product p : items) totalAmount += p.getTotalPrice();
 
-            // 1) Insert order
+
             orderPS = con.prepareStatement(insertOrderSql, Statement.RETURN_GENERATED_KEYS);
             orderPS.setInt(1, employeeId);
             orderPS.setInt(2, customerId);
@@ -42,7 +41,6 @@ public class OrderDAO {
             if (!rs.next()) throw new Exception("Failed to create order (no generated key)");
             int orderId = rs.getInt(1);
 
-            // 2) Insert items + update stock
             itemPS = con.prepareStatement(insertItemSql);
             stockPS = con.prepareStatement(updateStockSql);
 
@@ -52,7 +50,7 @@ public class OrderDAO {
                 double unitPrice = p.getPricePerPiece();
                 double lineTotal = p.getTotalPrice();
 
-                // 2a) Decrease stock first (recommended)
+
                 stockPS.setInt(1, qty);
                 stockPS.setInt(2, productId);
                 stockPS.setInt(3, qty);
@@ -62,7 +60,7 @@ public class OrderDAO {
                     throw new Exception("Not enough stock for: " + p.getItemName());
                 }
 
-                // 2b) Insert order item
+
                 itemPS.setInt(1, orderId);
                 itemPS.setInt(2, productId);
                 itemPS.setInt(3, qty);
@@ -139,7 +137,6 @@ public class OrderDAO {
     public LinkedList getOrderDetails(Connection con, int orderId) throws SQLException {
         LinkedList list = new LinkedList();
 
-        // Try to find the "product name" column in your products table
         String productNameCol = findFirstExistingColumn(con, "products",
                 "name", "product_name", "productName", "pname", "title", "productTitle", "item_name");
 
@@ -148,7 +145,6 @@ public class OrderDAO {
                     "Expected one of: name, product_name, productName, pname, title, item_name");
         }
 
-        // Try to find category relationship (optional)
         String categoryIdCol = findFirstExistingColumn(con, "products", "category_id", "categoryId", "cat_id");
         String categoryNameCol = findFirstExistingColumn(con, "categories", "name", "category_name", "categoryName", "title");
 
@@ -171,7 +167,6 @@ public class OrderDAO {
                             "WHERE oi.order_id = ? " +
                             "ORDER BY oi.id ASC";
         } else {
-            // No categories table/relationship: still return items
             sql =
                     "SELECT " +
                             "  oi.product_id, " +
@@ -199,7 +194,7 @@ public class OrderDAO {
                             rs.getDouble("unit_price"),
                             rs.getDouble("line_total")
                     );
-                    list.addLast(od); // <-- matches your LinkedList
+                    list.addLast(od);
                 }
             }
         }
@@ -207,13 +202,10 @@ public class OrderDAO {
         return list;
     }
 
-    /**
-     * Finds the first existing column in tableName from a list of candidate column names.
-     */
     private String findFirstExistingColumn(Connection con, String tableName, String... candidates) throws SQLException {
         DatabaseMetaData meta = con.getMetaData();
 
-        // Load all column names in the table into a set-like check
+
         java.util.HashSet<String> cols = new java.util.HashSet<>();
 
         try (ResultSet rs = meta.getColumns(con.getCatalog(), null, tableName, null)) {

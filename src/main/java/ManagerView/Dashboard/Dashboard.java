@@ -34,13 +34,13 @@ public class Dashboard {
     public Dashboard() {
         root = new BorderPane();
 
-        // 1. Title at the Top
+
         dashboardText = UIHelperC.createTitleText("Manager Dashboard");
         BorderPane.setAlignment(dashboardText, Pos.CENTER);
         BorderPane.setMargin(dashboardText, new Insets(20, 0, 0, 0));
         root.setTop(dashboardText);
 
-        // 2. Charts (Left Side)
+
         leftVBox = new VBox();
         leftVBox.setAlignment(Pos.CENTER);
         leftVBox.setSpacing(15);
@@ -50,7 +50,7 @@ public class Dashboard {
         pieChart = createPieChart();
         leftVBox.getChildren().addAll(barChart, pieChart);
 
-        // 3. Stats (Right Side)
+
         rightVBox = statsBox();
 
         root.setCenter(leftVBox);
@@ -60,7 +60,7 @@ public class Dashboard {
     }
 
     private VBox statsBox() {
-        VBox vBox = new VBox(20); // Reduced spacing slightly for fit
+        VBox vBox = new VBox(20);
         vBox.setPadding(new Insets(20));
         vBox.setAlignment(Pos.TOP_CENTER);
 
@@ -84,7 +84,7 @@ public class Dashboard {
         Label label = new Label(title + "\n" + value);
         label.getStyleClass().add("statistics-square");
         label.setAlignment(Pos.CENTER);
-        label.setMinWidth(180); // Ensure consistent box size
+        label.setMinWidth(180);
         return label;
     }
 
@@ -110,14 +110,14 @@ public class Dashboard {
     private void refreshAllInBackground() {
         Thread t = new Thread(() -> {
             try (Connection con = DBUtil.getConnection()) {
-                // DAOs
+
                 OrderDAO orderDAO = new OrderDAO();
                 CustomerDAO customerDAO = new CustomerDAO();
                 EmployeeDAO employeeDAO = new EmployeeDAO();
                 CategoryDAO categoryDAO = new CategoryDAO();
                 ProductDAO productDAO = new ProductDAO();
 
-                // 1. Process Bar Chart Data
+
                 LinkedList empList = orderDAO.getRevenuePerEmployee(con);
                 ObservableList<XYChart.Data<String, Number>> barData = FXCollections.observableArrayList();
                 Node cur1 = empList.getFront();
@@ -127,7 +127,7 @@ public class Dashboard {
                     cur1 = cur1.getNext();
                 }
 
-                // 2. Process Pie Chart Data
+
                 LinkedList catList = orderDAO.getCategoryRevenue(con);
                 ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList();
                 Node cur2 = catList.getFront();
@@ -137,7 +137,7 @@ public class Dashboard {
                     cur2 = cur2.getNext();
                 }
 
-                // 3. Fetch Statistics
+
                 double totalRev = orderDAO.getTotalRevenue();
                 int totalEmp = employeeDAO.getTotalEmployees();
                 int totalCust = customerDAO.getTotalCustomers();
@@ -146,13 +146,13 @@ public class Dashboard {
                 String topCli = orderDAO.getTopClient();
                 String topEmp = employeeDAO.getTopEmployee();
 
-                // 4. Update UI on JavaFX Application Thread
+
                 Platform.runLater(() -> {
-                    // Update Charts
+
                     barChartSeries.getData().setAll(barData);
                     pieChartData.setAll(pieData);
 
-                    // Update Labels (Fixed logic errors where topClientLabel was reused)
+
                     totalRevenueLabel.setText("Total Revenue\n$" + String.format("%.2f", totalRev));
                     totalEmployeeLabel.setText("Total Employees\n" + totalEmp);
                     totalCustomersLabel.setText("Total Customers\n" + totalCust);

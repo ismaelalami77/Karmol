@@ -95,7 +95,7 @@ public class CustomerDAO {
         return null;
     }
 
-    // ✅ FIXED: phone is String, not int, and no new Connection created here
+
     public Customer getCustomerByPhone(Connection con, String phone) {
         String sql = "SELECT * FROM customers WHERE customer_phone = ?";
 

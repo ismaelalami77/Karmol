@@ -161,10 +161,10 @@ public class AddShipment {
                 return;
             }
 
-            // ✅ auto create category if missing
+
             int categoryId = categoryDAO.getOrCreateCategoryId(con, categoryName);
 
-            // check if product exists
+
             Integer productId = productDAO.getProductIdByNameAndCategory(con, name, categoryId);
 
             boolean ok;

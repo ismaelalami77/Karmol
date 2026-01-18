@@ -88,13 +88,13 @@ public class ViewProducts {
         addShipmentBtn.setOnAction(e -> addShipment.showStage());
         addCategoryBtn.setOnAction(e -> addCategory.showStage());
 
-        // ✅ search filter
+
         searchTextField.textProperty().addListener((obs, oldV, newV) -> filterTable(newV));
 
         root.setCenter(centerVBox);
         root.setLeft(leftVBox);
 
-        // ✅ load table first time
+
         refreshTable();
     }
 
@@ -102,9 +102,6 @@ public class ViewProducts {
         return root;
     }
 
-    // =========================
-    // Load from DB into table
-    // =========================
     public void refreshTable() {
         try (Connection con = DBUtil.getConnection()) {
             if (con == null) return;
@@ -119,9 +116,7 @@ public class ViewProducts {
         }
     }
 
-    // =========================
-    // Filter by name (and category)
-    // =========================
+
     private void filterTable(String text) {
         if (text == null || text.trim().isEmpty()) {
             productsObservableList.setAll(products);

@@ -115,7 +115,7 @@ public class ProductDAO {
                         rs.getString("categoryName"),
                         rs.getDouble("productPrice")
                 );
-                p.setQuantity(rs.getInt("quantity")); // ✅ inventory quantity
+                p.setQuantity(rs.getInt("quantity"));
                 list.add(p);
             }
 

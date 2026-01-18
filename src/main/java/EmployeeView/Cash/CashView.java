@@ -70,7 +70,7 @@ public class CashView {
 
         titleText = UIHelperC.createTitleText("Karmol");
 
-        // ================== TABLE ==================
+
         productsTableView = new TableView<>();
 
         TableColumn<Product, String> nameCol = new TableColumn<>("Name");
@@ -96,7 +96,7 @@ public class CashView {
         centerVbox.getChildren().addAll(titleText, productsTableView);
         mainCenterVbox.getChildren().add(centerVbox);
 
-        // ================== LEFT ==================
+
         addBtn = UIHelperC.createStyledButton("Add Product");
         addBtn.setOnAction(e -> {
             addProductScene.resetToCategories();
@@ -110,16 +110,16 @@ public class CashView {
 
         leftVbox.getChildren().addAll(customerIDTextField, addBtn, payBtn);
 
-        // ================== RIGHT ==================
+
         orderIDText = UIHelperC.createInfoText("Order #: ");
         totalPriceText = UIHelperC.createInfoText("Total Price: " + calculateTotal());
 
         rightVbox.getChildren().addAll(orderIDText, totalPriceText);
 
-        // Load order number when screen opens
+
         loadNextOrderNumber();
 
-        // ================== BOTTOM ==================
+
         deleteBtn = UIHelperC.createStyledButton("Delete");
         deleteBtn.setOnAction(e -> deleteAction());
 
@@ -128,7 +128,7 @@ public class CashView {
 
         bottomHBox.getChildren().addAll(deleteBtn, deleteOneBtn);
 
-        // ================== ROOT ==================
+
         root.setCenter(mainCenterVbox);
         root.setBottom(bottomHBox);
         root.setLeft(leftVbox);
@@ -162,24 +162,24 @@ public class CashView {
 
         try (Connection con = DBUtil.getConnection()) {
 
-            // ✅ 1) FETCH customer by phone BEFORE using selectedCustomer
+
             CustomerDAO customerDAO = new CustomerDAO();
             selectedCustomer = customerDAO.getCustomerByPhone(con, phone);
 
-            // ✅ 2) Null check AFTER fetch
+
             if (selectedCustomer == null) {
                 UIHelperC.showAlert(Alert.AlertType.WARNING, "Customer not found");
                 return;
             }
 
-            int customerId = selectedCustomer.getCustomerId(); // ✅ safe now
+            int customerId = selectedCustomer.getCustomerId();
             int employeeId = user.getId();
 
-            // ✅ 3) Create order + items
+
             OrderDAO dao = new OrderDAO();
             int newOrderId = dao.createOrderWithItems(con, employeeId, customerId, products);
 
-            // ✅ Reset UI
+
             products.clear();
             refreshTable();
             customerIDTextField.clear();

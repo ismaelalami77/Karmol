@@ -1,4 +1,4 @@
-// ========================= OrderHistory.java =========================
+
 package EmployeeView.Orders;
 
 import Connection.DBUtil;
@@ -42,8 +42,8 @@ import java.util.ArrayList;
 public class OrderHistory {
 
     private static final DeviceRgb BRAND_GREEN = new DeviceRgb(0, 166, 80);
-    private static final DeviceRgb LIGHT_GREEN = new DeviceRgb(230, 247, 239); // background
-    private static final DeviceRgb ROW_ALT = new DeviceRgb(210, 238, 225);     // zebra rows
+    private static final DeviceRgb LIGHT_GREEN = new DeviceRgb(230, 247, 239);
+    private static final DeviceRgb ROW_ALT = new DeviceRgb(210, 238, 225);
     public static TableView<Order> ordersHistoryTableView;
     public static ArrayList<Order> ordersArrayList = new ArrayList<>();
     public static ObservableList<Order> ordersObservableList = FXCollections.observableArrayList();
@@ -154,7 +154,7 @@ public class OrderHistory {
         if (order == null) return;
 
         try {
-            // Save to Desktop
+
             String directoryPath = System.getProperty("user.home") + File.separator + "Desktop";
             String fileName = "Bill_Order_" + order.getOrderId() + ".pdf";
             String filePath = directoryPath + File.separator + fileName;
@@ -166,7 +166,6 @@ public class OrderHistory {
             PdfDocument pdfDoc = new PdfDocument(writer);
             Document document = new Document(pdfDoc);
 
-            // Logo (put it in: src/main/resources/images/logo.png)
             try {
                 var url = getClass().getResource("/com/example/comp333finalproj/logo.png");
                 if (url != null) {
@@ -179,7 +178,7 @@ public class OrderHistory {
             } catch (Exception ignored) {
             }
 
-            // Header
+
             document.add(new Paragraph("Karmol")
                     .setFont(PdfFontFactory.createFont(StandardFonts.HELVETICA_BOLD))
                     .setFontSize(20)
@@ -206,7 +205,7 @@ public class OrderHistory {
                 e.printStackTrace();
             }
 
-            // Details table
+
             Table detailsTable = new Table(new float[]{1, 2});
             detailsTable.setHorizontalAlignment(HorizontalAlignment.CENTER);
             detailsTable.setBackgroundColor(LIGHT_GREEN);
@@ -234,7 +233,7 @@ public class OrderHistory {
 
             document.add(new Paragraph(" "));
 
-            // Fetch items
+
             LinkedList orderDetailsList;
             try (Connection con = DBUtil.getConnection()) {
                 OrderDAO orderDAO = new OrderDAO();
@@ -278,7 +277,7 @@ public class OrderHistory {
                         .setFontColor(ColorConstants.GRAY));
             }
 
-            // Footer
+
             document.add(new Paragraph("Thank you for your purchase!")
                     .setFont(PdfFontFactory.createFont(StandardFonts.HELVETICA_OBLIQUE))
                     .setFontSize(12)

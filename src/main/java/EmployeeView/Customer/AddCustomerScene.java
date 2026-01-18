@@ -148,7 +148,7 @@ public class AddCustomerScene {
         try (Connection con = DBUtil.getConnection()) {
             CustomerDAO dao = new CustomerDAO();
 
-            // ✅ Prevent duplicate phone BEFORE insert
+
             if (dao.phoneExists(con, phone)) {
                 UIHelperC.showAlert(Alert.AlertType.WARNING, "This phone number already exists!");
                 return;

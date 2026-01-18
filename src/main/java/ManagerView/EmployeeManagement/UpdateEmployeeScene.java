@@ -169,7 +169,7 @@ public class UpdateEmployeeScene {
             return;
         }
 
-        // update selected employee object
+
         selectedEmployee.setUsername(employeeUsername);
         selectedEmployee.setFirstName(employeeFirstName);
         selectedEmployee.setLastName(employeeLastName);
