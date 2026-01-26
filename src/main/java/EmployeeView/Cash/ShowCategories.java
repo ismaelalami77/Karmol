@@ -20,29 +20,22 @@ import java.util.ArrayList;
 import java.util.function.Consumer;
 
 public class ShowCategories {
-    private BorderPane root;
+    private final BorderPane root;
 
-    private VBox centerVbox;
-    private GridPane grid;
-
-    private Text titleText;
-
-    private Button cancelButton;
+    private final GridPane grid;
 
     private final Consumer<Category> onCategorySelected;
-    private final Runnable onCancel;
 
     public ShowCategories(Consumer<Category> onCategorySelected, Runnable onCancel) {
         this.onCategorySelected = onCategorySelected;
-        this.onCancel = onCancel;
 
         root = new BorderPane();
 
-        centerVbox = new VBox();
+        VBox centerVbox = new VBox();
         centerVbox.setAlignment(Pos.CENTER);
         centerVbox.setSpacing(15);
 
-        titleText = UIHelperC.createTitleText("Categories");
+        Text titleText = UIHelperC.createTitleText("Categories");
 
         grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
@@ -54,7 +47,7 @@ public class ShowCategories {
         scrollPane.setFitToWidth(true);
         scrollPane.setPrefHeight(300);
 
-        cancelButton = UIHelperC.createStyledButton("Cancel");
+        Button cancelButton = UIHelperC.createStyledButton("Cancel");
         cancelButton.setOnAction(e -> onCancel.run());
 
 

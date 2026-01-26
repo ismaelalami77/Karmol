@@ -89,9 +89,7 @@ public class CategoryDAO {
         return insertCategory(con, name);
     }
 
-
     public String getTopCategory() {
-
 
         String sql =
                 //select the category name and calculates total revenue for each category

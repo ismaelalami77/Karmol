@@ -20,47 +20,36 @@ import Connection.CustomerDAO;
 import java.sql.Connection;
 
 public class AddCustomerScene {
-    private Stage stage;
-    private Scene scene;
-    private BorderPane root;
-    private GridPane grid;
-    private HBox buttonsHbox;
-    private VBox centerVbox;
+    private final Stage stage;
 
-    private Text addCustomerText, customerNameText,
-            customerEmailText, customerPhoneText, customerAddressText;
-    private TextField customerNameTextField,
-            customerEmailTextFiled, customerPhoneTextFiled, customerAddressTextFiled;
-    private Button addCustomerButton, cancelButton;
+    private final TextField customerNameTextField, customerAddressTextFiled,
+            customerEmailTextFiled, customerPhoneTextFiled;
 
-    private final CustomerView customerView;
+    public AddCustomerScene() {
 
-    public AddCustomerScene(CustomerView customerView) {
-        this.customerView = customerView;
+        BorderPane root = new BorderPane();
 
-        root = new BorderPane();
-
-        centerVbox = new VBox();
+        VBox centerVbox = new VBox();
         centerVbox.setAlignment(Pos.CENTER);
         centerVbox.setSpacing(15);
 
-        addCustomerText = UIHelperC.createTitleText("Add Customer");
+        Text addCustomerText = UIHelperC.createTitleText("Add Customer");
 
-        grid = new GridPane();
+        GridPane grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
         grid.setHgap(10);
         grid.setVgap(10);
 
-        customerNameText = UIHelperC.createInfoText("Name:");
+        Text customerNameText = UIHelperC.createInfoText("Name:");
         customerNameTextField = UIHelperC.createStyledTextField("Name");
 
-        customerEmailText = UIHelperC.createInfoText("Email:");
+        Text customerEmailText = UIHelperC.createInfoText("Email:");
         customerEmailTextFiled = UIHelperC.createStyledTextField("Email");
 
-        customerPhoneText = UIHelperC.createInfoText("Phone:");
+        Text customerPhoneText = UIHelperC.createInfoText("Phone:");
         customerPhoneTextFiled = UIHelperC.createStyledTextField("Phone");
 
-        customerAddressText = UIHelperC.createInfoText("Address:");
+        Text customerAddressText = UIHelperC.createInfoText("Address:");
         customerAddressTextFiled = UIHelperC.createStyledTextField("Address");
 
         grid.add(customerNameText, 0, 0);
@@ -75,20 +64,20 @@ public class AddCustomerScene {
         grid.add(customerAddressText, 0, 3);
         grid.add(customerAddressTextFiled, 1, 3);
 
-        buttonsHbox = new HBox();
+        HBox buttonsHbox = new HBox();
         buttonsHbox.setAlignment(Pos.CENTER);
         buttonsHbox.setSpacing(15);
         buttonsHbox.setPadding(new Insets(20));
 
-        addCustomerButton = UIHelperC.createStyledButton("Add");
-        cancelButton = UIHelperC.createStyledButton("Cancel");
+        Button addCustomerButton = UIHelperC.createStyledButton("Add");
+        Button cancelButton = UIHelperC.createStyledButton("Cancel");
         buttonsHbox.getChildren().addAll(addCustomerButton, cancelButton);
 
         centerVbox.getChildren().addAll(addCustomerText, grid, buttonsHbox);
 
         root.setCenter(centerVbox);
         stage = new Stage();
-        scene = new Scene(root, 650, 500);
+        Scene scene = new Scene(root, 650, 500);
         stage.setScene(scene);
         stage.setTitle("Add Customer");
 
@@ -198,7 +187,7 @@ public class AddCustomerScene {
         return address.matches("[A-Za-z0-9 ,.]+");
     }
 
-    private void clearFields(){
+    private void clearFields() {
         customerNameTextField.clear();
         customerEmailTextFiled.clear();
         customerPhoneTextFiled.clear();

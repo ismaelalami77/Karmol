@@ -126,7 +126,7 @@ public class CustomerDAO {
         }
     }
 
-    // counts total number of customers in the database
+    // counts the total number of customers in the database
     // used for dashboard statistics
     public int getTotalCustomers() {
         String sql = "SELECT COUNT(*) AS total FROM customers";

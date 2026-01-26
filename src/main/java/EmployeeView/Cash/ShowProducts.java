@@ -21,26 +21,19 @@ import java.util.ArrayList;
 
 public class ShowProducts {
     private final Category category;
-    private final Runnable onClose;
-    private final Runnable onBack;
-    private BorderPane root;
-    private VBox centerVbox;
-    private GridPane grid;
-    private Text titleText;
-    private Button cancelButton;
+    private final BorderPane root;
+    private final GridPane grid;
 
     public ShowProducts(Category category, Runnable onBack, Runnable onClose) {
         this.category = category;
-        this.onBack = onBack;
-        this.onClose = onClose;
 
         root = new BorderPane();
 
-        centerVbox = new VBox();
+        VBox centerVbox = new VBox();
         centerVbox.setAlignment(Pos.CENTER);
         centerVbox.setSpacing(15);
 
-        titleText = UIHelperC.createTitleText(category.getName());
+        Text titleText = UIHelperC.createTitleText(category.getName());
 
         grid = new GridPane();
         grid.setAlignment(Pos.CENTER);
@@ -52,7 +45,7 @@ public class ShowProducts {
         scrollPane.setFitToWidth(true);
         scrollPane.setPrefHeight(300);
 
-        cancelButton = UIHelperC.createStyledButton("Back");
+        Button cancelButton = UIHelperC.createStyledButton("Back");
         cancelButton.setOnAction(e -> onBack.run());
 
 

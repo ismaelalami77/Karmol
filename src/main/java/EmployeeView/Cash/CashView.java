@@ -30,45 +30,41 @@ public class CashView {
 
     private static Text totalPriceText;
 
-    private BorderPane root;
-    private VBox mainCenterVbox, centerVbox, leftVbox, rightVbox;
-    private HBox bottomHBox;
+    private final BorderPane root;
 
-    private Button deleteOneBtn, deleteBtn, addBtn, payBtn;
-    private TextField customerIDTextField;
+    private final TextField customerIDTextField;
 
-    private Text titleText, orderIDText;
+    private final Text orderIDText;
 
-    private AddProductScene addProductScene = new AddProductScene();
-    private Customer selectedCustomer = null;
+    private final AddProductScene addProductScene = new AddProductScene();
 
     public CashView(User user) {
         root = new BorderPane();
 
-        mainCenterVbox = new VBox();
+        VBox mainCenterVbox = new VBox();
         mainCenterVbox.setAlignment(Pos.CENTER);
 
-        centerVbox = new VBox();
+        VBox centerVbox = new VBox();
         centerVbox.setAlignment(Pos.TOP_CENTER);
         centerVbox.setSpacing(15);
         centerVbox.setPadding(new Insets(20));
 
-        leftVbox = new VBox();
+        VBox leftVbox = new VBox();
         leftVbox.setAlignment(Pos.CENTER);
         leftVbox.setSpacing(15);
         leftVbox.setPadding(new Insets(20));
 
-        rightVbox = new VBox();
+        VBox rightVbox = new VBox();
         rightVbox.setAlignment(Pos.CENTER);
         rightVbox.setSpacing(15);
         rightVbox.setPadding(new Insets(20));
 
-        bottomHBox = new HBox();
+        HBox bottomHBox = new HBox();
         bottomHBox.setAlignment(Pos.CENTER);
         bottomHBox.setSpacing(15);
         bottomHBox.setPadding(new Insets(15));
 
-        titleText = UIHelperC.createTitleText("Karmol");
+        Text titleText = UIHelperC.createTitleText("Karmol");
 
 
         productsTableView = new TableView<>();
@@ -97,7 +93,7 @@ public class CashView {
         mainCenterVbox.getChildren().add(centerVbox);
 
 
-        addBtn = UIHelperC.createStyledButton("Add Product");
+        Button addBtn = UIHelperC.createStyledButton("Add Product");
         addBtn.setOnAction(e -> {
             addProductScene.resetToCategories();
             addProductScene.showStage();
@@ -105,7 +101,7 @@ public class CashView {
 
         customerIDTextField = UIHelperC.createStyledTextField("Customer phone");
 
-        payBtn = UIHelperC.createStyledButton("Pay");
+        Button payBtn = UIHelperC.createStyledButton("Pay");
         payBtn.setOnAction(e -> payAction(user));
 
         leftVbox.getChildren().addAll(customerIDTextField, addBtn, payBtn);
@@ -120,10 +116,10 @@ public class CashView {
         loadNextOrderNumber();
 
 
-        deleteBtn = UIHelperC.createStyledButton("Delete");
+        Button deleteBtn = UIHelperC.createStyledButton("Delete");
         deleteBtn.setOnAction(e -> deleteAction());
 
-        deleteOneBtn = UIHelperC.createStyledButton("Delete One");
+        Button deleteOneBtn = UIHelperC.createStyledButton("Delete One");
         deleteOneBtn.setOnAction(e -> deleteOneAction());
 
         bottomHBox.getChildren().addAll(deleteBtn, deleteOneBtn);
@@ -164,7 +160,7 @@ public class CashView {
 
 
             CustomerDAO customerDAO = new CustomerDAO();
-            selectedCustomer = customerDAO.getCustomerByPhone(con, phone);
+            Customer selectedCustomer = customerDAO.getCustomerByPhone(con, phone);
 
 
             if (selectedCustomer == null) {

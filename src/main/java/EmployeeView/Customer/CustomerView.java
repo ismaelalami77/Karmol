@@ -77,7 +77,7 @@ public class CustomerView {
 
         loadCustomersFromDB();
 
-        addCustomerScene = new AddCustomerScene(this);
+        addCustomerScene = new AddCustomerScene();
         updateCustomerScene = new UpdateCustomerScene(this);
 
         addBtn.setOnAction(e -> addCustomerScene.showStage());

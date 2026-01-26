@@ -6,9 +6,8 @@ import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
 
 public class AddProductScene {
-    private Stage stage;
-    private Scene scene;
-    private BorderPane root;
+    private final Stage stage;
+    private final BorderPane root;
 
 
     public AddProductScene() {
@@ -22,7 +21,7 @@ public class AddProductScene {
         root.setCenter(showCategories.getRoot());
 
         stage = new Stage();
-        scene = new Scene(root, 600, 500);
+        Scene scene = new Scene(root, 600, 500);
         stage.setScene(scene);
         stage.setTitle("Add Product");
     }

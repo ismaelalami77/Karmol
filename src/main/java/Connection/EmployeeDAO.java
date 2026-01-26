@@ -121,7 +121,7 @@ public class EmployeeDAO {
     }
 
     // gets employee information using user id
-    // used when employee logs in
+    // used when an employee logs in
     // returns the employee object if found
     public static Employee getEmployeeByUserId(int userId) {
 

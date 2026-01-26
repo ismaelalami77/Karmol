@@ -36,7 +36,7 @@ public class OrderDAO {
             // start transaction
             con.setAutoCommit(false);
 
-            // calculate total amount of the order by summing all item totals
+            // calculate the total amount of the order by summing all item totals
             double totalAmount = 0;
             for (Product p : items) totalAmount += p.getTotalPrice();
 
@@ -142,7 +142,7 @@ public class OrderDAO {
 
         // check if products table has category_id column
         String categoryIdCol = findFirstExistingColumn(con, "products", "category_id", "categoryId", "cat_id");
-        // check if categories table has name column
+        // check if the categories table has name column
         String categoryNameCol = findFirstExistingColumn(con, "categories", "name", "category_name", "categoryName", "title");
 
         // if both exist, then categories are supported in this database
