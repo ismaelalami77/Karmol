@@ -60,7 +60,7 @@ It supports **sales processing, inventory management, customer tracking, employe
 ![Order History](images/OrderHistory.png)
 
 ### 🔐 Settings
-![Settings](images/Settings.png.png)
+![Settings](images/Settings.png)
 
 ### 🧾 Bill / Invoice
 ![Bill](images/Bill.png)
