@@ -3,6 +3,7 @@ package EmployeeView.Orders;
 
 import Connection.DBUtil;
 import Connection.OrderDAO;
+import Connection.OrderDetails;
 import DataStructure.LinkedList;
 import DataStructure.Node;
 import com.example.comp333finalproj.UIHelperC;
@@ -263,7 +264,7 @@ public class OrderHistory {
                 Node current = orderDetailsList.getFront();
 
                 while (current != null) {
-                    OrderDAO.OrderDetails od = (OrderDAO.OrderDetails) current.getElement();
+                    OrderDetails od = (OrderDetails) current.getElement();
                     addRowToTable(itemsTable, od, alternate);
                     alternate = !alternate;
                     current = current.getNext();
@@ -311,7 +312,7 @@ public class OrderHistory {
     }
 
 
-    private void addRowToTable(Table table, OrderDAO.OrderDetails od, boolean alternate) {
+    private void addRowToTable(Table table, OrderDetails od, boolean alternate) {
 
         DeviceRgb bg = alternate ? ROW_ALT : LIGHT_GREEN;
 

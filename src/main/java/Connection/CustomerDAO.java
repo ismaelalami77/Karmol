@@ -32,21 +32,6 @@ public class CustomerDAO {
         return customers;
     }
 
-    public int getNextCustomerID(Connection con) {
-        String sql = "SELECT COALESCE(MAX(customer_id), 0) + 1 AS next_id FROM customers";
-
-        try (PreparedStatement ps = con.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
-
-            if (rs.next()) return rs.getInt("next_id");
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return 1;
-    }
-
     public int insertCustomer(Connection con, Customer c) {
         String sql = "INSERT INTO customers (customer_name, customer_email, customer_phone, customer_address) " +
                 "VALUES (?, ?, ?, ?)";
@@ -71,31 +56,6 @@ public class CustomerDAO {
         return -1;
     }
 
-    public Customer getCustomerById(Connection con, int id) {
-        String sql = "SELECT * FROM customers WHERE customer_id = ?";
-
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, id);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return new Customer(
-                            rs.getInt("customer_id"),
-                            rs.getString("customer_name"),
-                            rs.getString("customer_email"),
-                            rs.getString("customer_phone"),
-                            rs.getString("customer_address")
-                    );
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return null;
-    }
-
-
     public Customer getCustomerByPhone(Connection con, String phone) {
         String sql = "SELECT * FROM customers WHERE customer_phone = ?";
 
@@ -118,19 +78,6 @@ public class CustomerDAO {
         }
 
         return null;
-    }
-
-    public boolean deleteCustomerByID(Connection con, int customerId) {
-        String sql = "DELETE FROM customers WHERE customer_id = ?";
-
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, customerId);
-            return ps.executeUpdate() > 0;
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
     }
 
     public boolean updateCustomer(Connection con, int customerId,

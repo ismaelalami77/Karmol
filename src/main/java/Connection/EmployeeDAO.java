@@ -14,10 +14,10 @@ public class EmployeeDAO {
         ArrayList<Employee> list = new ArrayList<>();
 
         String sql = """
-            SELECT id, full_name, username, password, phone, address
-            FROM users
-            WHERE role = 'EMPLOYEE'
-        """;
+                    SELECT id, full_name, username, password, phone, address
+                    FROM users
+                    WHERE role = 'EMPLOYEE'
+                """;
 
         try (Connection con = DBUtil.getConnection();
              PreparedStatement ps = con.prepareStatement(sql);
@@ -46,14 +46,12 @@ public class EmployeeDAO {
         return list;
     }
 
-
-
     public static int insertEmployee(Connection con, Employee employee) {
 
         String sql = """
-        INSERT INTO users (full_name, username, password, phone, address, role)
-        VALUES (?, ?, ?, ?, ?, 'EMPLOYEE')
-    """;
+                    INSERT INTO users (full_name, username, password, phone, address, role)
+                    VALUES (?, ?, ?, ?, ?, 'EMPLOYEE')
+                """;
 
         String fullName = (employee.getFirstName() + " " + employee.getLastName()).trim();
 
@@ -80,33 +78,17 @@ public class EmployeeDAO {
         }
     }
 
-    public static boolean deleteEmployeeByID(Connection con, int employeeId) {
-
-        String sql = """
-        DELETE FROM users
-        WHERE id = ? AND role = 'EMPLOYEE'
-    """;
-
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, employeeId);
-            return ps.executeUpdate() > 0;
-        } catch (Exception e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
     public static boolean updateEmployee(Connection con, Employee employee) {
 
         String sql = """
-        UPDATE users
-        SET full_name = ?,
-            username  = ?,
-            password  = ?,
-            phone     = ?,
-            address   = ?
-        WHERE id = ? AND role = 'EMPLOYEE'
-    """;
+                    UPDATE users
+                    SET full_name = ?,
+                        username  = ?,
+                        password  = ?,
+                        phone     = ?,
+                        address   = ?
+                    WHERE id = ? AND role = 'EMPLOYEE'
+                """;
 
         String fullName = (employee.getFirstName() + " " + employee.getLastName()).trim();
 
@@ -127,6 +109,89 @@ public class EmployeeDAO {
         }
     }
 
+    public static Employee getEmployeeByUserId(int userId) {
+
+        String sql = """
+                    SELECT id, full_name, username, password, phone, address
+                    FROM users
+                    WHERE id = ? AND role = 'EMPLOYEE'
+                """;
+
+        try (Connection con = DBUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, userId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+
+                if (rs.next()) {
+
+                    String fullName = rs.getString("full_name");
+                    String[] names = (fullName == null ? "" : fullName.trim()).split(" ", 2);
+
+                    return new Employee(
+                            rs.getInt("id"),
+                            names.length > 0 ? names[0] : "",
+                            names.length > 1 ? names[1] : "",
+                            rs.getString("username"),
+                            rs.getString("password"),
+                            rs.getString("phone"),
+                            rs.getString("address")
+                    );
+                }
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
+
+    public static boolean checkOldPassword(int employeeId, String oldPassword) {
+        String sql = """
+                    SELECT 1
+                    FROM users
+                    WHERE id = ? AND role='EMPLOYEE' AND password = ?
+                    LIMIT 1
+                """;
+
+        try (Connection con = DBUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setInt(1, employeeId);
+            ps.setString(2, oldPassword);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next();
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public static boolean updatePassword(int employeeId, String newPassword) {
+        String sql = """
+                    UPDATE users
+                    SET password = ?
+                    WHERE id = ? AND role='EMPLOYEE'
+                """;
+
+        try (Connection con = DBUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql)) {
+
+            ps.setString(1, newPassword);
+            ps.setInt(2, employeeId);
+
+            return ps.executeUpdate() > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     public int getTotalEmployees() {
         String sql = "SELECT COUNT(*) AS total FROM users WHERE role = 'EMPLOYEE'";
@@ -143,7 +208,6 @@ public class EmployeeDAO {
 
         return 0;
     }
-
 
     public String getTopEmployee() {
         String sql =
@@ -166,4 +230,6 @@ public class EmployeeDAO {
 
         return "N/A";
     }
+
+
 }

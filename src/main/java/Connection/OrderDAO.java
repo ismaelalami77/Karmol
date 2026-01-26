@@ -83,7 +83,6 @@ public class OrderDAO {
             if (stockPS != null) stockPS.close();
         }
     }
-
     public ArrayList<Order> getAllOrders(Connection con) throws SQLException {
         ArrayList<Order> list = new ArrayList<>();
         String sql = "SELECT id, employee_id, customer_id, order_date, total_amount FROM orders ORDER BY id DESC";
@@ -103,37 +102,6 @@ public class OrderDAO {
         }
         return list;
     }
-
-    public ArrayList<Order> getOrdersByCustomerId(Connection con, int customerId) throws SQLException {
-        ArrayList<Order> list = new ArrayList<>();
-        String sql = "SELECT id, employee_id, customer_id, order_date, total_amount " +
-                "FROM orders WHERE customer_id = ? ORDER BY id DESC";
-
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setInt(1, customerId);
-
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    list.add(new Order(
-                            rs.getInt("id"),
-                            rs.getInt("employee_id"),
-                            rs.getInt("customer_id"),
-                            rs.getTimestamp("order_date"),
-                            rs.getDouble("total_amount")
-                    ));
-                }
-            }
-        }
-        return list;
-    }
-
-    /**
-     * Returns order items for a given order_id.
-     * Make sure your schema matches these names:
-     * - order_items(order_id, product_id, quantity, unit_price, line_total, id)
-     * - products(id, name, category_id)
-     * - categories(id, name)
-     */
     public LinkedList getOrderDetails(Connection con, int orderId) throws SQLException {
         LinkedList list = new LinkedList();
 
@@ -201,7 +169,6 @@ public class OrderDAO {
 
         return list;
     }
-
     private String findFirstExistingColumn(Connection con, String tableName, String... candidates) throws SQLException {
         DatabaseMetaData meta = con.getMetaData();
 
@@ -219,7 +186,6 @@ public class OrderDAO {
         }
         return null;
     }
-
     public int getNextOrderId(Connection con) throws SQLException {
         String sql = "SELECT COALESCE(MAX(id), 0) + 1 AS next_id FROM orders";
         try (PreparedStatement ps = con.prepareStatement(sql);
@@ -228,7 +194,6 @@ public class OrderDAO {
         }
         return 1;
     }
-
     public LinkedList getRevenuePerEmployee(Connection con) throws SQLException {
         LinkedList revenuePerEmployeeList = new LinkedList();
         String sql =
@@ -250,7 +215,6 @@ public class OrderDAO {
         }
         return revenuePerEmployeeList;
     }
-
     public LinkedList getCategoryRevenue(Connection con) throws SQLException {
         LinkedList categoryRevenueList = new LinkedList();
 
@@ -276,7 +240,6 @@ public class OrderDAO {
 
         return categoryRevenueList;
     }
-
     public double getTotalRevenue() {
         String sql = "SELECT COALESCE(SUM(total_amount), 0) AS total_revenue FROM orders";
 
@@ -292,7 +255,6 @@ public class OrderDAO {
 
         return 0.0;
     }
-
     public String getTopClient() {
         String sql =
                 "SELECT c.customer_name AS customer_name, SUM(o.total_amount) AS revenue " +
@@ -317,47 +279,6 @@ public class OrderDAO {
 
 
 
-    public static class OrderDetails {
-        private final int productId;
-        private final String productName;
-        private final String categoryName;
-        private final int quantity;
-        private final double unitPrice;
-        private final double lineTotal;
 
-        public OrderDetails(int productId, String productName, String categoryName,
-                            int quantity, double unitPrice, double lineTotal) {
-            this.productId = productId;
-            this.productName = productName;
-            this.categoryName = categoryName;
-            this.quantity = quantity;
-            this.unitPrice = unitPrice;
-            this.lineTotal = lineTotal;
-        }
-
-        public int getProductId() {
-            return productId;
-        }
-
-        public String getProductName() {
-            return productName;
-        }
-
-        public String getCategoryName() {
-            return categoryName;
-        }
-
-        public int getQuantity() {
-            return quantity;
-        }
-
-        public double getUnitPrice() {
-            return unitPrice;
-        }
-
-        public double getLineTotal() {
-            return lineTotal;
-        }
-    }
 
 }

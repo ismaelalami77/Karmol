@@ -8,6 +8,7 @@ module com.example.comp333finalproj {
     requires kernel;
     requires io;
     requires layout;
+    requires org.slf4j;
 
     opens EmployeeView to javafx.base, javafx.fxml;
     opens Product to javafx.base, javafx.fxml;

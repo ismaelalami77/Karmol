@@ -41,21 +41,6 @@ public class ProductDAO {
         return products;
     }
 
-
-
-    public Integer getCategoryIdByName(Connection con, String categoryName) {
-        String sql = "SELECT id FROM categories WHERE name = ?";
-        try (PreparedStatement ps = con.prepareStatement(sql)) {
-            ps.setString(1, categoryName);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) return rs.getInt("id");
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     public Integer getProductIdByNameAndCategory(Connection con, String productName, int categoryId) {
         String sql = "SELECT id FROM products WHERE productName = ? AND category_id = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -141,7 +126,6 @@ public class ProductDAO {
         return false;
     }
 
-
     public String getTopProduct() {
         String sql =
                 "SELECT p.productName AS product_name, SUM(oi.line_total) AS revenue " +
@@ -151,11 +135,11 @@ public class ProductDAO {
                         "ORDER BY revenue DESC " +
                         "LIMIT 1";
 
-        try(Connection con = DBUtil.getConnection();
-        PreparedStatement ps = con.prepareStatement(sql);
-        ResultSet rs = ps.executeQuery()){
+        try (Connection con = DBUtil.getConnection();
+             PreparedStatement ps = con.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
             if (rs.next()) return rs.getString("product_name");
-        }catch (Exception e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
         return "N/A";

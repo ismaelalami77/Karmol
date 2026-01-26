@@ -1,6 +1,5 @@
 package ManagerView.EmployeeManagement;
 
-import com.example.comp333finalproj.UIHelper;
 import com.example.comp333finalproj.UIHelperC;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -37,7 +36,6 @@ public class UpdateEmployeeScene {
             employeePhoneTextField, employeeAddressTextField;
 
     private PasswordField employeePasswordField;
-
 
     private Button updateEmployeeButton, cancelButton;
     private Employee selectedEmployee;

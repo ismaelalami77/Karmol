@@ -34,7 +34,6 @@ public class Dashboard {
     public Dashboard() {
         root = new BorderPane();
 
-
         dashboardText = UIHelperC.createTitleText("Manager Dashboard");
         BorderPane.setAlignment(dashboardText, Pos.CENTER);
         BorderPane.setMargin(dashboardText, new Insets(20, 0, 0, 0));
@@ -91,21 +90,35 @@ public class Dashboard {
     private BarChart<String, Number> createBarChart() {
         CategoryAxis xAxis = new CategoryAxis();
         xAxis.setLabel("Employee");
+
         NumberAxis yAxis = new NumberAxis();
         yAxis.setLabel("Revenue");
 
         BarChart<String, Number> chart = new BarChart<>(xAxis, yAxis);
         chart.setTitle("Revenue Per Employee");
+
+        chart.setAnimated(false);            // ✅ no bar animation
+        xAxis.setAnimated(false);            // ✅ no axis animation
+        yAxis.setAnimated(false);            // ✅ no axis animation
+        chart.setLegendVisible(false);       // optional (clean look)
+
         barChartSeries.setName("Revenue");
         chart.getData().add(barChartSeries);
+
         return chart;
     }
+
 
     private PieChart createPieChart() {
         PieChart chart = new PieChart(pieChartData);
         chart.setTitle("Category Revenue Distribution");
+
+        chart.setAnimated(false);            // ✅ no pie animation
+        chart.setLegendVisible(true);        // optional
+
         return chart;
     }
+
 
     private void refreshAllInBackground() {
         Thread t = new Thread(() -> {
