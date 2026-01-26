@@ -59,27 +59,20 @@ public class Login {
         userField = UIHelperC.createStyledTextField("Username");
         passField = UIHelperC.createStyledPassField("Password");
 
-
         loginButton = UIHelperC.createStyledButton("Login");
-
 
         container.getChildren().addAll(logoView, loginText, userField, passField, loginButton);
 
-
         root.setCenter(container);
-
 
         stage = new Stage();
         scene = new Scene(root, 400, 500);
         stage.setScene(scene);
         stage.setResizable(false);
 
-
         loginButton.setOnAction(e -> LoginHandle());
         userField.setOnAction(e -> passField.requestFocus());
         passField.setOnAction(e -> LoginHandle());
-
-
     }
 
     private void LoginHandle() {
@@ -99,8 +92,6 @@ public class Login {
             stage.close();
         }
     }
-
-
     public void showStage() {
         stage.show();
     }

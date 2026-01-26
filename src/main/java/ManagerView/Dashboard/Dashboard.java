@@ -29,7 +29,7 @@ public class Dashboard {
     private VBox leftVBox, rightVBox;
 
     private Label totalRevenueLabel, totalEmployeeLabel, totalCustomersLabel,
-            topCategoryLabel, topProductLabel, topClientLabel, topEmployeeLabel;
+            topCategoryLabel, topEmployeeLabel;
 
     public Dashboard() {
         root = new BorderPane();
@@ -61,19 +61,17 @@ public class Dashboard {
     private VBox statsBox() {
         VBox vBox = new VBox(20);
         vBox.setPadding(new Insets(20));
-        vBox.setAlignment(Pos.TOP_CENTER);
+        vBox.setAlignment(Pos.CENTER);
 
         totalRevenueLabel = createStatLabel("Total Revenue", "Calculating...");
         totalEmployeeLabel = createStatLabel("Total Employees", "0");
         totalCustomersLabel = createStatLabel("Total Customers", "0");
         topCategoryLabel = createStatLabel("Top Category", "-");
-        topProductLabel = createStatLabel("Top Product", "-");
-        topClientLabel = createStatLabel("Top Client", "-");
         topEmployeeLabel = createStatLabel("Top Employee", "-");
 
         vBox.getChildren().addAll(
                 totalRevenueLabel, totalEmployeeLabel, totalCustomersLabel,
-                topCategoryLabel, topProductLabel, topClientLabel, topEmployeeLabel
+                topCategoryLabel, topEmployeeLabel
         );
 
         return vBox;
@@ -97,10 +95,10 @@ public class Dashboard {
         BarChart<String, Number> chart = new BarChart<>(xAxis, yAxis);
         chart.setTitle("Revenue Per Employee");
 
-        chart.setAnimated(false);            // ✅ no bar animation
-        xAxis.setAnimated(false);            // ✅ no axis animation
-        yAxis.setAnimated(false);            // ✅ no axis animation
-        chart.setLegendVisible(false);       // optional (clean look)
+        chart.setAnimated(false);
+        xAxis.setAnimated(false);
+        yAxis.setAnimated(false);
+        chart.setLegendVisible(false);
 
         barChartSeries.setName("Revenue");
         chart.getData().add(barChartSeries);
@@ -113,8 +111,8 @@ public class Dashboard {
         PieChart chart = new PieChart(pieChartData);
         chart.setTitle("Category Revenue Distribution");
 
-        chart.setAnimated(false);            // ✅ no pie animation
-        chart.setLegendVisible(true);        // optional
+        chart.setAnimated(false);
+        chart.setLegendVisible(true);
 
         return chart;
     }
@@ -128,7 +126,6 @@ public class Dashboard {
                 CustomerDAO customerDAO = new CustomerDAO();
                 EmployeeDAO employeeDAO = new EmployeeDAO();
                 CategoryDAO categoryDAO = new CategoryDAO();
-                ProductDAO productDAO = new ProductDAO();
 
 
                 LinkedList empList = orderDAO.getRevenuePerEmployee(con);
@@ -153,10 +150,8 @@ public class Dashboard {
 
                 double totalRev = orderDAO.getTotalRevenue();
                 int totalEmp = employeeDAO.getTotalEmployees();
-                int totalCust = customerDAO.getTotalCustomers();
+                int totalCustomers = customerDAO.getTotalCustomers();
                 String topCat = categoryDAO.getTopCategory();
-                String topProd = productDAO.getTopProduct();
-                String topCli = orderDAO.getTopClient();
                 String topEmp = employeeDAO.getTopEmployee();
 
 
@@ -168,10 +163,8 @@ public class Dashboard {
 
                     totalRevenueLabel.setText("Total Revenue\n$" + String.format("%.2f", totalRev));
                     totalEmployeeLabel.setText("Total Employees\n" + totalEmp);
-                    totalCustomersLabel.setText("Total Customers\n" + totalCust);
+                    totalCustomersLabel.setText("Total Customers\n" + totalCustomers);
                     topCategoryLabel.setText("Top Category\n" + (topCat != null ? topCat : "N/A"));
-                    topProductLabel.setText("Top Product\n" + (topProd != null ? topProd : "N/A"));
-                    topClientLabel.setText("Top Client\n" + (topCli != null ? topCli : "N/A"));
                     topEmployeeLabel.setText("Top Employee\n" + (topEmp != null ? topEmp : "N/A"));
                 });
 

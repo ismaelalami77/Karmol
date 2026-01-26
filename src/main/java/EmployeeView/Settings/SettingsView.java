@@ -12,7 +12,6 @@ import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 
-
 import javafx.scene.control.*;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.GridPane;
@@ -20,7 +19,6 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 
 import java.sql.Connection;
-import java.sql.PreparedStatement;
 
 public class SettingsView {
     private BorderPane root;
@@ -165,7 +163,7 @@ public class SettingsView {
 
         if (wantsToChangePassword) {
 
-            // Must enter current password
+            // Must enter the current password
             if (currentPass.isEmpty()) {
                 UIHelperC.showAlert(Alert.AlertType.INFORMATION, "Please enter your current password first.");
                 return;
@@ -273,7 +271,4 @@ public class SettingsView {
         t.setDaemon(true);
         t.start();
     }
-
-
-
 }
