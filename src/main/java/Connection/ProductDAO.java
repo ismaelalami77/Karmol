@@ -7,6 +7,9 @@ import java.util.ArrayList;
 
 public class ProductDAO {
 
+    // gets all products that belong to a specific category
+    // joins products with categories to get category name
+    // orders products by product name
     public ArrayList<Product> getProductsByCategoryId(Connection con, int categoryId) {
         ArrayList<Product> products = new ArrayList<>();
 
@@ -29,6 +32,7 @@ public class ProductDAO {
                             rs.getDouble("productPrice")
                     );
 
+                    // set available quantity from database
                     p.setQuantity(rs.getInt("quantity"));
 
                     products.add(p);
@@ -41,6 +45,9 @@ public class ProductDAO {
         return products;
     }
 
+    // searches for a product by name and category
+    // used to avoid inserting duplicate products
+    // returns product id if found, otherwise null
     public Integer getProductIdByNameAndCategory(Connection con, String productName, int categoryId) {
         String sql = "SELECT id FROM products WHERE productName = ? AND category_id = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -55,6 +62,8 @@ public class ProductDAO {
         return null;
     }
 
+    // inserts a new product with initial quantity
+    // used when the product does not already exist
     public boolean insertProductWithQuantity(Connection con, Product p, int categoryId, int quantity) {
         String sql = "INSERT INTO products (productName, productPrice, category_id, quantity) VALUES (?, ?, ?, ?)";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -69,6 +78,8 @@ public class ProductDAO {
         return false;
     }
 
+    // adds quantity to an existing product
+    // used when restocking products
     public boolean addQuantityToExistingProduct(Connection con, int productId, int addQty) {
         String sql = "UPDATE products SET quantity = quantity + ? WHERE id = ?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -81,6 +92,9 @@ public class ProductDAO {
         return false;
     }
 
+    // gets all products from the database
+    // joins categories to show category name
+    // orders products by category then product name
     public ArrayList<Product> getAllProducts(Connection con) {
         ArrayList<Product> list = new ArrayList<>();
 
@@ -111,6 +125,8 @@ public class ProductDAO {
         return list;
     }
 
+    // updates product information
+    // updates name, category, price, and quantity
     public boolean updateProduct(Connection con, int productId, String name, int categoryId, double price, int qty) {
         String sql = "UPDATE products SET productName=?, category_id=?, productPrice=?, quantity=? WHERE id=?";
         try (PreparedStatement ps = con.prepareStatement(sql)) {
@@ -126,6 +142,8 @@ public class ProductDAO {
         return false;
     }
 
+    // finds the product that generated the highest revenue
+    // used for manager dashboard
     public String getTopProduct() {
         String sql =
                 "SELECT p.productName AS product_name, SUM(oi.line_total) AS revenue " +

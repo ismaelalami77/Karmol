@@ -7,6 +7,9 @@ import java.util.ArrayList;
 
 public class CustomerDAO {
 
+    // gets all customers from the customers table
+    // orders them by customer id
+    // returns them as an ArrayList
     public ArrayList<Customer> getAllCustomers(Connection con) {
         ArrayList<Customer> customers = new ArrayList<>();
 
@@ -32,6 +35,9 @@ public class CustomerDAO {
         return customers;
     }
 
+    // insert a new customer into the customers table
+    // generates an automatic id for the customer
+    // returns the generated customer id
     public int insertCustomer(Connection con, Customer c) {
         String sql = "INSERT INTO customers (customer_name, customer_email, customer_phone, customer_address) " +
                 "VALUES (?, ?, ?, ?)";
@@ -56,6 +62,9 @@ public class CustomerDAO {
         return -1;
     }
 
+    // search for a customer using phone number
+    // if found, return the customer object
+    // if not found, return null
     public Customer getCustomerByPhone(Connection con, String phone) {
         String sql = "SELECT * FROM customers WHERE customer_phone = ?";
 
@@ -80,6 +89,8 @@ public class CustomerDAO {
         return null;
     }
 
+    // update customer information using customer id
+    // updates name, email, phone, and address
     public boolean updateCustomer(Connection con, int customerId,
                                   String name, String email, String phone, String address) {
 
@@ -101,6 +112,8 @@ public class CustomerDAO {
         }
     }
 
+    // checks if a phone number already exists in the database
+    // returns true if found, false otherwise
     public boolean phoneExists(Connection con, String phone) throws SQLException {
         String sql = "SELECT 1 FROM customers WHERE customer_phone = ? LIMIT 1";
 
@@ -113,6 +126,8 @@ public class CustomerDAO {
         }
     }
 
+    // counts total number of customers in the database
+    // used for dashboard statistics
     public int getTotalCustomers() {
         String sql = "SELECT COUNT(*) AS total FROM customers";
 
@@ -128,5 +143,4 @@ public class CustomerDAO {
 
         return 0;
     }
-
 }
